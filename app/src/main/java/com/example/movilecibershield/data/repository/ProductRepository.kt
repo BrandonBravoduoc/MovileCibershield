@@ -35,7 +35,7 @@ class ProductRepository(
                 RepoResult(error = message)
             }
         } catch (e: IOException) {
-            RepoResult(error = "Sin conexión a internet. Verifique su red.")
+            RepoResult(error = "Sin conexión a internet. Verifique su red. Error: ${e.message}")
         } catch (e: Exception) {
             RepoResult(error = "Error inesperado: ${e.message}")
         }
