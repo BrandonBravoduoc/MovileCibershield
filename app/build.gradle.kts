@@ -76,6 +76,7 @@ dependencies {
     // --- Room (cache offline) ---
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
+    implementation(libs.firebase.crashlytics.buildtools)
     // Necesitas KSP para el compiler (ver paso 3)
     ksp(libs.androidx.room.compiler)
 

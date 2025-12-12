@@ -1,9 +1,9 @@
 package com.example.movilecibershield.data.repository
 
-import android.R.id.message
 import com.example.movilecibershield.data.local.TokenCache
 import com.example.movilecibershield.data.model.auth.AuthResponse
 import com.example.movilecibershield.data.model.auth.LoginRequest
+import com.example.movilecibershield.data.model.user.UserRegister
 import com.example.movilecibershield.data.model.user.UserResponse
 import com.example.movilecibershield.data.remote.api.AuthApiService
 import kotlinx.coroutines.Dispatchers
@@ -57,43 +57,34 @@ class AuthRepository(
     }
 
     suspend fun register(
-        userName: String,
-        email: String,
-        password: String,
-        confirmPassword: String,
-        imagePart: MultipartBody.Part?
-    ): RepoResult<UserResponse> = withContext(Dispatchers.IO){
+        user: UserRegister,
+        imagePart: MultipartBody.Part? = null
+    ): RepoResult<UserResponse> = withContext(Dispatchers.IO) {
 
         try {
             val response = authApiService.register(
-                userName = userName.toRequestBody("text/plain".toMediaTypeOrNull()),
-                email = email.toRequestBody("text/plain".toMediaTypeOrNull()),
-                password = password.toRequestBody("text/plain".toMediaTypeOrNull()),
-                confirmPassword = confirmPassword.toRequestBody("text/plain".toMediaTypeOrNull()),
+                userName = user.userName.toRequestBody("text/plain".toMediaTypeOrNull()),
+                email = user.email.toRequestBody("text/plain".toMediaTypeOrNull()),
+                password = user.password.toRequestBody("text/plain".toMediaTypeOrNull()),
+                confirmPassword = user.confirmPassword.toRequestBody("text/plain".toMediaTypeOrNull()),
                 imageUser = imagePart
             )
             RepoResult(data = response)
 
-        }catch (e: HttpException){
+        } catch (e: HttpException) {
             val errorBody = e.response()?.errorBody()?.string()
-
-            val message = if (!errorBody.isNullOrBlank()) {
-                try {
-                    JSONObject(errorBody).optString("error", "Error del servidor")
-                } catch (_: Exception) {
-                    "Error del servidor"
-                }
-            } else {
+            val message = try {
+                JSONObject(errorBody ?: "").optString("error", "Error del servidor")
+            } catch (_: Exception) {
                 "Error del servidor"
             }
-
             RepoResult(error = message)
-        }catch (e: IOException){
+
+        } catch (e: IOException) {
             RepoResult(error = "Sin conexión a internet")
 
-        }catch (_: Exception){
+        } catch (_: Exception) {
             RepoResult(error = "Error inesperado")
-
         }
     }
 

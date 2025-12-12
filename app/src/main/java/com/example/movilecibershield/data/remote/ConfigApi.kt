@@ -9,9 +9,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 object ConfigApi {
-
     private const val BASE_URL = "https://cibershield-backend.onrender.com/"
-
     private val okHttpClient : OkHttpClient by lazy{
         OkHttpClient.Builder()
 
