@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.devtools.ksp") version "2.0.21-1.0.27"
 }
 
 android {
@@ -42,6 +43,8 @@ android {
 }
 
 dependencies {
+
+    // --- Compose base (ya los tienes, ok) ---
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -50,6 +53,37 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+
+    // --- Navigation Compose ---
+    implementation("androidx.navigation:navigation-compose:2.8.4")
+
+    // --- ViewModel Compose ---
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
+
+    // --- Retrofit + Gson ---
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+
+    // --- OkHttp + Logging ---
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
+    // --- DataStore (guardar JWT, usuario, etc.) ---
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
+
+    // --- Room (cache offline) ---
+    implementation("androidx.room:room-runtime:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
+    // Necesitas KSP para el compiler (ver paso 3)
+    ksp("androidx.room:room-compiler:2.6.1")
+
+    // --- Coil (cargar imágenes URL en Compose) ---
+    implementation("io.coil-kt:coil-compose:2.7.0")
+
+    // --- WorkManager (reintentos / colas cuando vuelve internet) ---
+    implementation("androidx.work:work-runtime-ktx:2.9.1")
+
+    // --- Testing (los tuyos) ---
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
