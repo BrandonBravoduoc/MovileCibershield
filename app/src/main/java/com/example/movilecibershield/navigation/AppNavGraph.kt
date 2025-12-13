@@ -5,9 +5,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.movilecibershield.data.local.TokenDataStore
-import com.example.movilecibershield.ui.screens.HomeScreen
 import com.example.movilecibershield.ui.screens.SplashScreen
 import com.example.movilecibershield.ui.screens.auth.AuthScreen
+import com.example.movilecibershield.ui.screens.home.HomeScreen
 import com.example.movilecibershield.viewmodel.AuthViewModel
 import com.example.movilecibershield.viewmodel.ProductViewModel
 
