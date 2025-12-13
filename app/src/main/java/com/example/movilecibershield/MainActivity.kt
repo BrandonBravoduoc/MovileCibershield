@@ -1,6 +1,5 @@
 package com.example.movilecibershield
 
-
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -8,19 +7,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.movilecibershield.data.local.TokenDataStore
 import com.example.movilecibershield.data.remote.ConfigApi
 import com.example.movilecibershield.data.repository.AuthRepository
+import com.example.movilecibershield.data.repository.ProductRepository
 import com.example.movilecibershield.navigation.AppNavGraph
 import com.example.movilecibershield.ui.theme.MovileCibershieldTheme
 import com.example.movilecibershield.viewmodel.AuthViewModel
-
-
-
-import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.movilecibershield.viewmodel.AuthViewModelFactory
+import com.example.movilecibershield.viewmodel.ProductViewModel
+import com.example.movilecibershield.viewmodel.ProductViewModelFactory
 
 class MainActivity : ComponentActivity() {
 
@@ -36,6 +34,7 @@ class MainActivity : ComponentActivity() {
                     TokenDataStore(applicationContext)
                 }
 
+                // --- AUTH ---
                 val authRepository = remember {
                     AuthRepository(
                         authApiService = ConfigApi.authApiService
@@ -49,10 +48,23 @@ class MainActivity : ComponentActivity() {
                     )
                 )
 
+                val productRepository = remember {
+                    ProductRepository(
+                        productService = ConfigApi.productService
+                    )
+                }
+
+                val productViewModel: ProductViewModel = viewModel(
+                    factory = ProductViewModelFactory(
+                        repository = productRepository
+                    )
+                )
+
                 Surface(modifier = Modifier.fillMaxSize()) {
                     AppNavGraph(
                         navController = navController,
                         authViewModel = authViewModel,
+                        productViewModel = productViewModel,
                         tokenDataStore = tokenDataStore
                     )
                 }
@@ -60,7 +72,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
 
 
 
