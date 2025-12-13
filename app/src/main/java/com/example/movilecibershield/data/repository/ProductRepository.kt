@@ -10,7 +10,6 @@ import java.io.IOException
 class ProductRepository(
     private val productService: ProductService
 ) {
-    // Función para obtener el catálogo
     suspend fun getProducts(): RepoResult<List<ProductResponse>> = withContext(Dispatchers.IO) {
         try {
             // Llamamos al servicio (que definimos anteriormente)
