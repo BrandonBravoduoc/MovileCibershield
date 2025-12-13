@@ -1,18 +1,21 @@
 package com.example.movilecibershield.navigation
 
+
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.movilecibershield.data.local.TokenDataStore
 import com.example.movilecibershield.ui.screens.SplashScreen
 import com.example.movilecibershield.ui.screens.auth.AuthScreen
 import com.example.movilecibershield.viewmodel.AuthViewModel
-import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.auth.AUTH
+
 
 @Composable
 fun AppNavGraph(
     navController: NavHostController,
-    authViewModel: AuthViewModel
+    authViewModel: AuthViewModel,
+    tokenDataStore: TokenDataStore
 ) {
     NavHost(
         navController = navController,
@@ -21,7 +24,8 @@ fun AppNavGraph(
 
         composable(Routes.SPLASH) {
             SplashScreen(
-                navController = navController
+                navController = navController,
+                tokenDataStore = tokenDataStore
             )
         }
 
@@ -31,10 +35,11 @@ fun AppNavGraph(
                 navController = navController
             )
         }
-
-        composable(Routes.HOME) {
-            HomeScreen()
-        }
     }
 }
+
+
+
+
+
 
