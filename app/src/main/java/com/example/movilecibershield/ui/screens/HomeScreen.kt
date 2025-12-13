@@ -1,9 +1,11 @@
-package com.example.movilecibershield.ui.screens.home
+package com.example.movilecibershield.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -22,62 +24,90 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.example.movilecibershield.data.local.TokenCache.token
+import com.example.movilecibershield.navigation.Routes
+import com.example.movilecibershield.ui.components.AppBottomBar
 import com.example.movilecibershield.ui.components.ProductCard
+import com.example.movilecibershield.ui.components.SearchBar
 import com.example.movilecibershield.viewmodel.ProductViewModel
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    viewModel: ProductViewModel
+    viewModel: ProductViewModel,
+    navController: NavController,
+    token: String?
 ) {
     val products = viewModel.products
     val isLoading = viewModel.isLoading
     val error = viewModel.errorMessage
 
+    val currentRoute = Routes.HOME
+
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text("CiberShield Productos") },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary
-                ),
-                actions = {
-                    IconButton(onClick = { /* TODO: Ir al carrito */ }) {
-                        Icon(
-                            imageVector = Icons.Default.ShoppingCart,
-                            contentDescription = "Ver Carrito"
-                        )
-                    }
-                }
+            Column {
+                CenterAlignedTopAppBar(
+                    title = { Text("CiberShield Productos") },
+                    actions = {
+                        IconButton(onClick = { /* TODO Ir al carrito */ }) {
+                            Icon(
+                                imageVector = Icons.Default.ShoppingCart,
+                                contentDescription = "Carrito"
+                            )
+                        }
+                    },
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                        actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+                    )
+                )
+
+                SearchBar(
+                    modifier = Modifier
+                        .padding(12.dp)
+                        .fillMaxWidth(),
+                    onSearch = { query -> viewModel.searchProducts(query) }
+                )
+            }
+        },
+
+        bottomBar = {
+            AppBottomBar(
+                navController = navController,
+                currentRoute = currentRoute,
+                token = token
             )
         }
     ) { innerPadding ->
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            if (isLoading) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            } else if (error != null) {
-                Text(
+            when {
+                isLoading -> CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center)
+                )
+
+                error != null -> Text(
                     text = error,
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.align(Alignment.Center)
                 )
-            } else {
-                LazyColumn(
+
+                else -> LazyColumn(
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(products) { product ->
                         ProductCard(
                             product = product,
-                            onAddToCart = { selectedProduct ->
-                                println("Agregado al carrito: ${selectedProduct.productName}")
-                            }
+                            onAddToCart = { println("Agregado al carrito: ${it.productName}") }
                         )
                     }
                 }

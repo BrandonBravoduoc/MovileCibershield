@@ -13,15 +13,18 @@ import com.example.movilecibershield.data.local.TokenDataStore
 import com.example.movilecibershield.data.remote.ConfigApi
 import com.example.movilecibershield.data.repository.AuthRepository
 import com.example.movilecibershield.data.repository.ProductRepository
+import com.example.movilecibershield.data.repository.UserRepository
 import com.example.movilecibershield.navigation.AppNavGraph
 import com.example.movilecibershield.ui.theme.MovileCibershieldTheme
 import com.example.movilecibershield.viewmodel.AuthViewModel
 import com.example.movilecibershield.viewmodel.AuthViewModelFactory
 import com.example.movilecibershield.viewmodel.ProductViewModel
 import com.example.movilecibershield.viewmodel.ProductViewModelFactory
+import com.example.movilecibershield.viewmodel.UserViewModel
+import com.example.movilecibershield.viewmodel.UserViewModelFactory
+
 
 class MainActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -29,12 +32,9 @@ class MainActivity : ComponentActivity() {
             MovileCibershieldTheme {
 
                 val navController = rememberNavController()
+                val tokenDataStore = remember { TokenDataStore(applicationContext) }
 
-                val tokenDataStore = remember {
-                    TokenDataStore(applicationContext)
-                }
-
-                // --- AUTH ---
+                // -------- AUTH --------
                 val authRepository = remember {
                     AuthRepository(
                         authApiService = ConfigApi.authApiService
@@ -48,6 +48,7 @@ class MainActivity : ComponentActivity() {
                     )
                 )
 
+                // -------- PRODUCTOS --------
                 val productRepository = remember {
                     ProductRepository(
                         productApiService = ConfigApi.productApiService
@@ -55,16 +56,29 @@ class MainActivity : ComponentActivity() {
                 }
 
                 val productViewModel: ProductViewModel = viewModel(
-                    factory = ProductViewModelFactory(
-                        repository = productRepository
+                    factory = ProductViewModelFactory(repository = productRepository)
+                )
+
+                // -------- USER --------
+                val userRepository = remember {
+                    UserRepository(
+                        api = ConfigApi.userApiService
+                    )
+                }
+
+                val userViewModel: UserViewModel = viewModel(
+                    factory = UserViewModelFactory(
+                        repository = userRepository
                     )
                 )
 
+                // -------- UI --------
                 Surface(modifier = Modifier.fillMaxSize()) {
                     AppNavGraph(
                         navController = navController,
                         authViewModel = authViewModel,
                         productViewModel = productViewModel,
+                        userViewModel = userViewModel,
                         tokenDataStore = tokenDataStore
                     )
                 }

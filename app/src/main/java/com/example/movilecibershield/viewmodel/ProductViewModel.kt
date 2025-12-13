@@ -9,9 +9,9 @@ import com.example.movilecibershield.data.model.product.ProductResponse
 import com.example.movilecibershield.data.repository.ProductRepository
 import kotlinx.coroutines.launch
 
-class ProductViewModel(
-    private val productRepository: ProductRepository
-) : ViewModel() {
+class ProductViewModel(private val productRepository: ProductRepository) : ViewModel() {
+
+    private var allProducts: List<ProductResponse> = emptyList()
 
     var products by mutableStateOf<List<ProductResponse>>(emptyList())
         private set
@@ -32,14 +32,27 @@ class ProductViewModel(
             errorMessage = null
 
             val result = productRepository.getProducts()
-
             isLoading = false
+
             result.data?.let {
+                allProducts = it
                 products = it
             }
+
             result.error?.let {
                 errorMessage = it
             }
         }
     }
+
+    fun searchProducts(query: String) {
+        if (query.isBlank()) {
+            products = allProducts
+        } else {
+            products = allProducts.filter {
+                it.productName.contains(query, ignoreCase = true)
+            }
+        }
+    }
 }
+

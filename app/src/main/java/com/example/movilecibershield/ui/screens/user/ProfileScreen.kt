@@ -1,13 +1,9 @@
 package com.example.movilecibershield.ui.screens.user
 
-
-
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,85 +13,124 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.movilecibershield.viewmodel.UserViewModel
+import com.example.movilecibershield.navigation.Routes
+import com.example.movilecibershield.ui.components.AppBottomBar
 
 @Composable
 fun ProfileScreen(
     viewModel: UserViewModel,
-    navController: NavController
+    navController: NavController,
+    token: String?
 ) {
-    // Cargar perfil al entrar
-    LaunchedEffect(Unit) {
-        viewModel.loadProfile()
+    val profile by viewModel.profile.collectAsState()
+    val loading by viewModel.loading.collectAsState()
+    val error by viewModel.error.collectAsState()
+
+    LaunchedEffect(token) {
+        viewModel.loadProfile(token)
     }
 
-    val profile by viewModel.profile.collectAsState()
-    val isLoading by viewModel.loading.collectAsState()
-    val errorMessage by viewModel.error.collectAsState()
+    Scaffold(
+        bottomBar = {
+            AppBottomBar(
+                navController = navController,
+                currentRoute = Routes.PROFILE,
+                token = token
+            )
+        }
+    ) { innerPadding ->
 
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(16.dp)
+        ) {
 
-        when {
-            isLoading -> {
-                CircularProgressIndicator()
+            if (loading) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                return@Box
             }
 
-            errorMessage != null -> {
-                Text(text = errorMessage ?: "Error desconocido")
+            error?.let {
+                Column(
+                    modifier = Modifier.align(Alignment.Center),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(text = "Error: $it", color = MaterialTheme.colorScheme.error)
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Button(onClick = { viewModel.loadProfile(token) }) {
+                        Text("Reintentar")
+                    }
+                }
+                return@Box
             }
 
-            profile != null -> {
-                val user = profile!!
+            if (token == null) {
+                Column(
+                    modifier = Modifier.align(Alignment.Center),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text("Debes iniciar sesión para ver tu perfil")
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Button(onClick = { navController.navigate(Routes.AUTH) }) {
+                        Text("Iniciar sesión")
+                    }
+                }
+                return@Box
+            }
+
+            profile?.let { user ->
 
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
 
-                    // Imagen del usuario
                     Image(
                         painter = rememberAsyncImagePainter(user.imageUser),
-                        contentDescription = "Profile",
+                        contentDescription = "Foto de perfil",
                         modifier = Modifier
-                            .size(120.dp)
+                            .size(110.dp)
                             .clip(CircleShape),
                         contentScale = ContentScale.Crop
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
 
-                    // Datos del usuario
-                    Text(text = "Usuario: ${user.userName}")
-                    Text(text = "Email: ${user.email}")
+                    Text(text = user.userName, style = MaterialTheme.typography.titleLarge)
+                    Text(text = user.email, style = MaterialTheme.typography.bodyMedium)
 
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    // Datos de contacto si existen
-                    user.contact?.let { contact ->
-                        Text(text = "Nombre: ${contact.name} ${contact.lastName}")
-                        Text(text = "Teléfono: ${contact.phone}")
-                        Text(text = "Dirección: ${contact.addressInfo}")
-                    } ?: Text("No has agregado un contacto aún.")
+                    if (user.contact != null) {
+                        Text("Nombre: ${user.contact.name} ${user.contact.lastName}")
+                        Text("Teléfono: ${user.contact.phone}")
+                        Text("Dirección: ${user.contact.addressInfo}")
+                    } else {
+                        Text("No has agregado información de contacto")
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Button(
+                            onClick = {
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                            }
+                        ) {
+                            Text("Agregar contacto")
+                        }
+                    }
 
-                    // Botón para ir a editar perfil
+                    Spacer(modifier = Modifier.height(20.dp))
+
+
                     Button(
                         onClick = {
-                            navController.navigate("edit_profile")
+
                         }
                     ) {
-                        Text("Editar Perfil")
+                        Text("Editar perfil")
                     }
                 }
             }
         }
     }
 }
-
-
-
