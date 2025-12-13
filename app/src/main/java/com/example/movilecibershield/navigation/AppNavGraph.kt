@@ -8,14 +8,17 @@ import com.example.movilecibershield.data.local.TokenDataStore
 import com.example.movilecibershield.ui.screens.SplashScreen
 import com.example.movilecibershield.ui.screens.auth.AuthScreen
 import com.example.movilecibershield.ui.screens.home.HomeScreen
+import com.example.movilecibershield.ui.screens.user.ProfileScreen
 import com.example.movilecibershield.viewmodel.AuthViewModel
 import com.example.movilecibershield.viewmodel.ProductViewModel
+import com.example.movilecibershield.viewmodel.UserViewModel
 
 
 @Composable
 fun AppNavGraph(
     navController: NavHostController,
     authViewModel: AuthViewModel,
+    userViewModel: UserViewModel,
     productViewModel: ProductViewModel,
     tokenDataStore: TokenDataStore
 ) {
@@ -43,6 +46,14 @@ fun AppNavGraph(
                 viewModel = productViewModel
             )
         }
+
+        composable(Routes.PROFILE) {
+            ProfileScreen(
+                viewModel = userViewModel,
+                navController = navController
+            )
+        }
+
     }
 }
 
