@@ -1,19 +1,19 @@
 package com.example.movilecibershield.data.repository
 
 import com.example.movilecibershield.data.model.product.ProductResponse
-import com.example.movilecibershield.data.remote.api.product.ProductService
+import com.example.movilecibershield.data.remote.api.product.ProductApiService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.io.IOException
 
 class ProductRepository(
-    private val productService: ProductService
+    private val productApiService: ProductApiService
 ) {
     suspend fun getProducts(): RepoResult<List<ProductResponse>> = withContext(Dispatchers.IO) {
         try {
             // Llamamos al servicio (que definimos anteriormente)
-            val response = productService.getProduct()
+            val response = productApiService.getProduct()
 
             if (response.isSuccessful) {
                 // Si sale bien

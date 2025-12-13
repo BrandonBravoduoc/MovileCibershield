@@ -46,7 +46,7 @@ fun ProductCard(
     ) {
         Row(
             modifier = Modifier
-                .padding(12.dp) // Espaciado interno
+                .padding(12.dp)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {

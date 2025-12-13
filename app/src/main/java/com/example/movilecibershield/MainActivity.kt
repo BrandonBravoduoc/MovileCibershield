@@ -50,7 +50,7 @@ class MainActivity : ComponentActivity() {
 
                 val productRepository = remember {
                     ProductRepository(
-                        productService = ConfigApi.productService
+                        productApiService = ConfigApi.productApiService
                     )
                 }
 
