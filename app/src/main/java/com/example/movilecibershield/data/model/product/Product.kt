@@ -11,4 +11,12 @@ data class ProductResponse(
     val tradeMarkName: String?
 )
 
+data class Product(
+    val id: Long,
+    val nombre: String,
+    val precio: Double,
+    val foto: String
+)
+
+
 

@@ -1,42 +1,37 @@
 package com.example.movilecibershield.data.repository
 
+import com.example.movilecibershield.data.model.product.Product
 import com.example.movilecibershield.data.model.product.ProductResponse
 import com.example.movilecibershield.data.remote.api.product.ProductApiService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.json.JSONObject
-import java.io.IOException
 
 class ProductRepository(
     private val productApiService: ProductApiService
 ) {
-    suspend fun getProducts(): RepoResult<List<ProductResponse>> = withContext(Dispatchers.IO) {
+    suspend fun getProducts(): RepoResult<List<Product>> = withContext(Dispatchers.IO) {
         try {
-            // Llamamos al servicio (que definimos anteriormente)
             val response = productApiService.getProduct()
 
             if (response.isSuccessful) {
-                // Si sale bien
-                val products = response.body() ?: emptyList<ProductResponse>()
-                RepoResult(data = products)
-            } else {
-                // Si el servidor responde error
-                val errorBody = response.errorBody()?.string()
-                val message = if (!errorBody.isNullOrBlank()) {
-                    try {
-                        JSONObject(errorBody).optString("message", "Error al cargar productos")
-                    } catch (_: Exception) {
-                        "Error del servidor"
-                    }
-                } else {
-                    "Error desconocido"
+                val dtos = response.body() ?: emptyList<ProductResponse>()
+
+                val misProductos = dtos.map { dto ->
+                    Product(
+                        id = dto.id,
+                        nombre = dto.productName
+                            ?: "Producto sin nombre",
+                        precio = dto.price,
+                        foto = dto.imageUrl ?: ""
+                    )
                 }
-                RepoResult(error = message)
+                RepoResult(data = misProductos)
+
+            } else {
+                RepoResult(error = "Error del servidor")
             }
-        } catch (e: IOException) {
-            RepoResult(error = "Sin conexión a internet. Verifique su red. Error: ${e.message}")
         } catch (e: Exception) {
-            RepoResult(error = "Error inesperado: ${e.message}")
+            RepoResult(error = "Error: ${e.message}")
         }
     }
 }
