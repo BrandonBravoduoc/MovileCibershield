@@ -28,12 +28,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.example.movilecibershield.data.model.product.Product
 import com.example.movilecibershield.data.model.product.ProductResponse
 
 @Composable
 fun ProductCard(
-    product: ProductResponse,
-    onAddToCart: (ProductResponse) -> Unit,
+    product: Product,
+    onAddToCart: (Product) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -51,8 +52,8 @@ fun ProductCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             AsyncImage(
-                model = product.imageUrl ?: "https://via.placeholder.com/150",
-                contentDescription = product.productName,
+                model = product.foto.ifBlank { "https://via.placeholder.com/150" },
+                contentDescription = product.nombre,
                 modifier = Modifier
                     .size(100.dp)
                     .clip(RoundedCornerShape(8.dp)),
@@ -60,26 +61,17 @@ fun ProductCard(
             )
 
             Spacer(modifier = Modifier.width(16.dp))
+
             Column(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = product.productName,
+                    text = product.nombre,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                product.categoryName?.let {
-                    Text(
-                        text = it,
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.secondary
-                    )
-                }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -89,11 +81,12 @@ fun ProductCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "$ ${product.price.toInt()}", // Formato simple sin decimales
+                        text = "$ ${product.precio.toInt()}",
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold
                     )
+
                     FilledIconButton(
                         onClick = { onAddToCart(product) },
                         colors = IconButtonDefaults.filledIconButtonColors(

@@ -1,5 +1,6 @@
 package com.example.movilecibershield.ui.screens
 
+import ProductViewModel
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,12 +26,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.movilecibershield.data.local.TokenCache.token
 import com.example.movilecibershield.navigation.Routes
 import com.example.movilecibershield.ui.components.AppBottomBar
 import com.example.movilecibershield.ui.components.ProductCard
 import com.example.movilecibershield.ui.components.SearchBar
-import com.example.movilecibershield.viewmodel.ProductViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -107,9 +106,10 @@ fun HomeScreen(
                     items(products) { product ->
                         ProductCard(
                             product = product,
-                            onAddToCart = { println("Agregado al carrito: ${it.productName}") }
+                            onAddToCart = { println("Agregado al carrito: ${it.nombre}") }
                         )
                     }
+
                 }
             }
         }

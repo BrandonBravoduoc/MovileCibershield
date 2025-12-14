@@ -1,19 +1,19 @@
-package com.example.movilecibershield.viewmodel
-
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.movilecibershield.data.model.product.ProductResponse
+import com.example.movilecibershield.data.model.product.Product
 import com.example.movilecibershield.data.repository.ProductRepository
 import kotlinx.coroutines.launch
 
-class ProductViewModel(private val productRepository: ProductRepository) : ViewModel() {
+class ProductViewModel(
+    private val productRepository: ProductRepository
+) : ViewModel() {
 
-    private var allProducts: List<ProductResponse> = emptyList()
+    private var allProducts: List<Product> = emptyList()
 
-    var products by mutableStateOf<List<ProductResponse>>(emptyList())
+    var products by mutableStateOf<List<Product>>(emptyList())
         private set
 
     var isLoading by mutableStateOf(false)
@@ -34,25 +34,24 @@ class ProductViewModel(private val productRepository: ProductRepository) : ViewM
             val result = productRepository.getProducts()
             isLoading = false
 
-            result.data?.let {
-                allProducts = it
-                products = it
+            result.data?.let { productList ->
+                allProducts = productList
+                products = productList
             }
 
-            result.error?.let {
-                errorMessage = it
+            result.error?.let { error ->
+                errorMessage = error
             }
         }
     }
 
     fun searchProducts(query: String) {
-        if (query.isBlank()) {
-            products = allProducts
+        products = if (query.isBlank()) {
+            allProducts
         } else {
-            products = allProducts.filter {
-                it.productName.contains(query, ignoreCase = true)
+            allProducts.filter {
+                it.nombre.contains(query, ignoreCase = true)
             }
         }
     }
 }
-

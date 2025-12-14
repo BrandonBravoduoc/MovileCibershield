@@ -14,24 +14,24 @@ class ProductRepository(
             val response = productApiService.getProduct()
 
             if (response.isSuccessful) {
-                val dtos = response.body() ?: emptyList<ProductResponse>()
+                val dtos = response.body() ?: emptyList()
 
-                val misProductos = dtos.map { dto ->
+                val productos = dtos.map { dto ->
                     Product(
                         id = dto.id,
-                        nombre = dto.productName
-                            ?: "Producto sin nombre",
+                        nombre = dto.productName,
                         precio = dto.price,
                         foto = dto.imageUrl ?: ""
                     )
                 }
-                RepoResult(data = misProductos)
 
+                RepoResult(data = productos)
             } else {
                 RepoResult(error = "Error del servidor")
             }
         } catch (e: Exception) {
-            RepoResult(error = "Error: ${e.message}")
+            RepoResult(error = e.message ?: "Error desconocido")
         }
     }
 }
+

@@ -1,5 +1,6 @@
 package com.example.movilecibershield.navigation
 
+import ProductViewModel
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -12,7 +13,6 @@ import com.example.movilecibershield.ui.screens.SplashScreen
 import com.example.movilecibershield.ui.screens.auth.AuthScreen
 import com.example.movilecibershield.ui.screens.user.ProfileScreen
 import com.example.movilecibershield.viewmodel.AuthViewModel
-import com.example.movilecibershield.viewmodel.ProductViewModel
 import com.example.movilecibershield.viewmodel.UserViewModel
 
 
