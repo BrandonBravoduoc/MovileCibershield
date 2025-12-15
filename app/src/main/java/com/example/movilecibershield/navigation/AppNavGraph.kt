@@ -62,7 +62,8 @@ fun AppNavGraph(
         composable(Routes.CART) {
             CartScreen(
                 viewModel = cartViewModel,
-                navController = navController
+                navController = navController,
+                token = token
             )
         }
     }
