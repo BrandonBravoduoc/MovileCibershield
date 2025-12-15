@@ -5,13 +5,20 @@ import com.example.movilecibershield.data.model.user.UserRegister
 
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.movilecibershield.ui.components.Button
 import com.example.movilecibershield.ui.components.TextField
-
 
 @Composable
 fun RegisterForm(
@@ -25,75 +32,94 @@ fun RegisterForm(
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
 
-    Column {
 
-        TextField(
-            value = userName,
-            onValueChange = { userName = it },
-            label = "Usuario",
-            modifier = Modifier.fillMaxWidth()
-        )
+    Card(
+        modifier = Modifier
+            .widthIn(max = 360.dp)
+            .padding(horizontal = 20.dp),
+        shape = RoundedCornerShape(20.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
 
-        Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Crear cuenta",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
+            )
 
-        TextField(
-            value = email,
-            onValueChange = { email = it },
-            label = "Email",
-            modifier = Modifier.fillMaxWidth()
-        )
+            TextField(
+                value = userName,
+                onValueChange = { userName = it },
+                label = "Usuario",
+                modifier = Modifier.fillMaxWidth(),
+            )
 
-        Spacer(modifier = Modifier.height(8.dp))
+            TextField(
+                value = email,
+                onValueChange = { email = it },
+                label = "Email",
+                modifier = Modifier.fillMaxWidth(),
+            )
 
-        TextField(
-            value = password,
-            onValueChange = { password = it },
-            label = "Password",
-            isPassword = true,
-            modifier = Modifier.fillMaxWidth()
-        )
+            TextField(
+                value = password,
+                onValueChange = { password = it },
+                label = "Password",
+                isPassword = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
 
-        Spacer(modifier = Modifier.height(8.dp))
+            TextField(
+                value = confirmPassword,
+                onValueChange = { confirmPassword = it },
+                label = "Confirmar password",
+                isPassword = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
 
-        TextField(
-            value = confirmPassword,
-            onValueChange = { confirmPassword = it },
-            label = "Confirmar password",
-            isPassword = true,
-            modifier = Modifier.fillMaxWidth()
-        )
 
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Button(
-            text = "Crear cuenta",
-            isLoading = isLoading,
-            onClick = {
-                onRegister(
-                    UserRegister(
-                        userName,
-                        email,
-                        password,
-                        confirmPassword,
-                        imageUser = null
+            Button(
+                text = "Crear cuenta",
+                isLoading = isLoading,
+                onClick = {
+                    onRegister(
+                        UserRegister(
+                            userName,
+                            email,
+                            password,
+                            confirmPassword,
+                            imageUser = null
+                        )
                     )
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(44.dp),
+                containerColor = Color(0xFF1F2937)
+            )
+
+            Text(
+                text = "¿Ya tienes cuenta? Inicia sesión",
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .clickable { onGoToLogin() }
+                    .padding(top = 6.dp)
+            )
+
+            errorMessage?.let {
+                Text(
+                    text = it,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall
                 )
-            },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Text(
-            text = "¿Ya tienes cuenta? Inicia sesión",
-            modifier = Modifier
-                .padding(top = 8.dp)
-                .clickable { onGoToLogin() }
-        )
-
-        errorMessage?.let {
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = it)
+            }
         }
     }
 }
+
+

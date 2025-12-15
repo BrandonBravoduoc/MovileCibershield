@@ -1,11 +1,13 @@
 package com.example.movilecibershield.ui.components
 
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun TextField(
@@ -13,7 +15,7 @@ fun TextField(
     onValueChange: (String) -> Unit,
     label: String,
     isPassword: Boolean = false,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     OutlinedTextField(
         value = value,
@@ -24,6 +26,8 @@ fun TextField(
         } else {
             VisualTransformation.None
         },
+        shape = RoundedCornerShape(24.dp),
         modifier = modifier
     )
 }
+
