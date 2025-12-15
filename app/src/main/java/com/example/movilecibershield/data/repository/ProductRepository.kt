@@ -21,7 +21,9 @@ class ProductRepository(
                         id = dto.id,
                         nombre = dto.productName,
                         precio = dto.price,
-                        foto = dto.imageUrl ?: ""
+                        foto = dto.imageUrl ?: "",
+                        categoria = dto.categoryName,
+                        marca = dto.tradeMarkName
                     )
                 }
 
@@ -34,4 +36,3 @@ class ProductRepository(
         }
     }
 }
-

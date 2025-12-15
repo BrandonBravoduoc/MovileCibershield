@@ -1,6 +1,7 @@
 package com.example.movilecibershield.ui.screens
 
 import ProductViewModel
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,22 +9,18 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.movilecibershield.navigation.Routes
@@ -47,27 +44,14 @@ fun HomeScreen(
 
     Scaffold(
         topBar = {
-            Column {
-                CenterAlignedTopAppBar(
-                    title = { Text("CiberShield Productos") },
-                    actions = {
-                        IconButton(onClick = { /* TODO Ir al carrito */ }) {
-                            Icon(
-                                imageVector = Icons.Default.ShoppingCart,
-                                contentDescription = "Carrito"
-                            )
-                        }
-                    },
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                        actionIconContentColor = MaterialTheme.colorScheme.onPrimary
-                    )
-                )
-
+            Column(
+                modifier = Modifier
+                    .background(Color(0xFFF5F5F5)) // Color de fondo gris claro para la cabecera
+                    .padding(top = 16.dp, bottom = 8.dp)
+            ) {
                 SearchBar(
                     modifier = Modifier
-                        .padding(12.dp)
+                        .padding(horizontal = 16.dp)
                         .fillMaxWidth(),
                     onSearch = { query -> viewModel.searchProducts(query) }
                 )
@@ -87,6 +71,7 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .background(Color(0xFFF5F5F5)) // Fondo gris claro estilo tienda
         ) {
             when {
                 isLoading -> CircularProgressIndicator(
@@ -99,9 +84,12 @@ fun HomeScreen(
                     modifier = Modifier.align(Alignment.Center)
                 )
 
-                else -> LazyColumn(
+                else -> LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
                     contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.fillMaxSize()
                 ) {
                     items(products) { product ->
                         ProductCard(
@@ -109,7 +97,6 @@ fun HomeScreen(
                             onAddToCart = { println("Agregado al carrito: ${it.nombre}") }
                         )
                     }
-
                 }
             }
         }

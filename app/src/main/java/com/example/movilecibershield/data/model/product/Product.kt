@@ -15,8 +15,7 @@ data class Product(
     val id: Long,
     val nombre: String,
     val precio: Double,
-    val foto: String
+    val foto: String,
+    val categoria: String?,
+    val marca: String?
 )
-
-
-
