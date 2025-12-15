@@ -49,4 +49,8 @@ object ConfigApi {
 
     }
 
+    val checkoutService: CheckoutService by lazy {
+        retrofit.create(CheckoutService::class.java)
+    }
+
 }

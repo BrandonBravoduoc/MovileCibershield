@@ -139,7 +139,7 @@ fun CartScreen(
                             Spacer(modifier = Modifier.height(16.dp))
 
                             Button(
-                                onClick = { viewModel.confirmPurchase() },
+                                onClick = { navController.navigate(Routes.CHECKOUT) },
                                 modifier = Modifier.fillMaxWidth(),
                                 enabled = status != "LOADING",
                                 shape = RoundedCornerShape(8.dp)
