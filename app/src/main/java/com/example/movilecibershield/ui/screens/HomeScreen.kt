@@ -27,12 +27,14 @@ import com.example.movilecibershield.navigation.Routes
 import com.example.movilecibershield.ui.components.AppBottomBar
 import com.example.movilecibershield.ui.components.ProductCard
 import com.example.movilecibershield.ui.components.SearchBar
+import com.example.movilecibershield.ui.viewmodel.CartViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     viewModel: ProductViewModel,
+    cartViewModel: CartViewModel,
     navController: NavController,
     token: String?
 ) {
@@ -94,7 +96,10 @@ fun HomeScreen(
                     items(products) { product ->
                         ProductCard(
                             product = product,
-                            onAddToCart = { println("Agregado al carrito: ${it.nombre}") }
+                            onAddToCart = { 
+                                cartViewModel.addToCart(it)
+                                println("Agregado al carrito: ${it.nombre}") 
+                            }
                         )
                     }
                 }

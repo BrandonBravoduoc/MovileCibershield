@@ -17,6 +17,7 @@ import com.example.movilecibershield.data.repository.ProductRepository
 import com.example.movilecibershield.data.repository.UserRepository
 import com.example.movilecibershield.navigation.AppNavGraph
 import com.example.movilecibershield.ui.theme.MovileCibershieldTheme
+import com.example.movilecibershield.ui.viewmodel.CartViewModel
 import com.example.movilecibershield.viewmodel.AuthViewModel
 import com.example.movilecibershield.viewmodel.AuthViewModelFactory
 import com.example.movilecibershield.viewmodel.ProductViewModelFactory
@@ -72,6 +73,9 @@ class MainActivity : ComponentActivity() {
                     )
                 )
 
+                // -------- CART --------
+                val cartViewModel: CartViewModel = viewModel()
+
                 // -------- UI --------
                 Surface(modifier = Modifier.fillMaxSize()) {
                     AppNavGraph(
@@ -79,6 +83,7 @@ class MainActivity : ComponentActivity() {
                         authViewModel = authViewModel,
                         productViewModel = productViewModel,
                         userViewModel = userViewModel,
+                        cartViewModel = cartViewModel,
                         tokenDataStore = tokenDataStore
                     )
                 }
@@ -86,6 +91,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-
-

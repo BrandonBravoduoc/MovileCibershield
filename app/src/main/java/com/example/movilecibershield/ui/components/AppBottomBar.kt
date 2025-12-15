@@ -29,8 +29,8 @@ fun AppBottomBar(
         )
 
         NavigationBarItem(
-            selected = false,
-            onClick = { /* TODO Carrito */ },
+            selected = currentRoute == Routes.CART,
+            onClick = { navController.navigate(Routes.CART) },
             icon = { Icon(Icons.Default.ShoppingCart, contentDescription = null) },
             label = { Text("Carrito") }
         )
@@ -48,7 +48,3 @@ fun AppBottomBar(
         )
     }
 }
-
-
-
-
