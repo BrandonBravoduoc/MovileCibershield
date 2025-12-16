@@ -1,6 +1,7 @@
 package com.example.movilecibershield.data.remote
 
 import com.example.movilecibershield.data.remote.api.AuthApiService
+import com.example.movilecibershield.data.remote.api.order.OrderApiService
 import com.example.movilecibershield.data.remote.api.product.LocationApiService
 import com.example.movilecibershield.data.remote.api.product.ProductApiService
 import com.example.movilecibershield.data.remote.api.product.UserApiService
@@ -16,7 +17,7 @@ object ConfigApi {
     private val okHttpClient : OkHttpClient by lazy{
         OkHttpClient.Builder()
 
-            .addInterceptor(AuthInterceptor()) //--> Agrega el token del inicio de sesión
+            .addInterceptor(AuthInterceptor())
             .addInterceptor(
                 HttpLoggingInterceptor().apply {
                     level = HttpLoggingInterceptor.Level.BODY
@@ -50,10 +51,9 @@ object ConfigApi {
 
     }
 
-    val checkoutService: CheckoutService by lazy {
-        retrofit.create(CheckoutService::class.java)
+    val orderApiService: OrderApiService by lazy {
+        retrofit.create(OrderApiService::class.java)
     }
-
 
     val locationApiService: LocationApiService by lazy{
         retrofit.create(LocationApiService::class.java)

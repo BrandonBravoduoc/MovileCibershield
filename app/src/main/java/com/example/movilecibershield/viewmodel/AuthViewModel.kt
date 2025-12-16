@@ -18,7 +18,6 @@ class AuthViewModel(
     private val tokenDataStore: TokenDataStore
 ) : ViewModel() {
 
-    // Estado
     var authMode by mutableStateOf(AuthMode.LOGIN)
         private set
     var isLoading by mutableStateOf(false)
@@ -28,19 +27,16 @@ class AuthViewModel(
     var authResponse by mutableStateOf<AuthResponse?>(null)
         private set
 
-    // Cambiar al modo LOGIN
     fun switchToLogin() {
         authMode = AuthMode.LOGIN
         clearError()
     }
 
-    // Cambiar al modo REGISTER
     fun switchToRegister() {
         authMode = AuthMode.REGISTER
         clearError()
     }
 
-    // Login
     fun login(email: String, password: String) {
         isLoading = true
         errorMessage = null
@@ -51,7 +47,7 @@ class AuthViewModel(
             isLoading = false
             result.data?.let {
                 authResponse = it
-                tokenDataStore.saveToken(it.token)  // Guardar token
+                tokenDataStore.saveToken(it.token)
             }
             result.error?.let {
                 errorMessage = it
@@ -59,7 +55,6 @@ class AuthViewModel(
         }
     }
 
-    // Register (y auto-login)
     fun register(userRegister: UserRegister) {
         isLoading = true
         errorMessage = null
@@ -82,7 +77,7 @@ class AuthViewModel(
 
             loginResult.data?.let {
                 authResponse = it
-                tokenDataStore.saveToken(it.token)  // Guardar token después de registrar
+                tokenDataStore.saveToken(it.token)
             }
 
             loginResult.error?.let {
@@ -91,12 +86,10 @@ class AuthViewModel(
         }
     }
 
-    // Limpiar errores
     fun clearError() {
         errorMessage = null
     }
 
-    // Limpiar resultados
     fun clearResults() {
         authResponse = null
     }

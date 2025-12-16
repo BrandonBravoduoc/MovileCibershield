@@ -1,8 +1,19 @@
-package com.example.movilecibershield.data.remote.api
+package com.example.movilecibershield.data.remote.api.order
 
-import com.example.movilecibershield.data.model.order.*
+import com.example.movilecibershield.data.model.order.OrderCreate
+import com.example.movilecibershield.data.model.order.OrderDetailResponse
+import com.example.movilecibershield.data.model.order.OrderResponse
+import com.example.movilecibershield.data.model.order.OrderStatusCreate
+import com.example.movilecibershield.data.model.order.OrderStatusResponse
+import com.example.movilecibershield.data.model.order.PaymentMethodResponse
+import com.example.movilecibershield.data.model.order.PaymentResponse
+import com.example.movilecibershield.data.model.order.ShippingMethodResponse
 import retrofit2.Response
-import retrofit2.http.*
+import retrofit2.http.Body
+import retrofit2.http.GET
+import retrofit2.http.PATCH
+import retrofit2.http.POST
+import retrofit2.http.Path
 
 interface OrderApiService {
 

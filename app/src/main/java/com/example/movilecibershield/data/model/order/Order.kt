@@ -14,10 +14,15 @@ data class CreateItem(
     val shippingMethodId: Int
 )
 
+data class ProductInOrder(
+    val id: Long,
+    val productName: String
+)
+
 data class OrderDetailResponse(
-    val productId: Long,
-    val productName: String,
-    val amount: Int,
+
+    val product: ProductInOrder,
+    val quantity: Int,
     val unitPrice: String,
     val subtotal: String
 )
@@ -27,6 +32,6 @@ data class OrderResponse(
     val orderNumber: String,
     val orderDate: String,
     val total: String,
-    val status: String,
+    val status: OrderStatusResponse,
     val details: List<OrderDetailResponse>
 )

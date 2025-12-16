@@ -2,17 +2,26 @@ package com.example.movilecibershield.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.movilecibershield.data.model.order.OrderResponse
 import com.example.movilecibershield.data.model.user.*
+import com.example.movilecibershield.data.repository.OrderRepository
 import com.example.movilecibershield.data.repository.UserRepository
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 
-class UserViewModel(private val repo: UserRepository) : ViewModel() {
+class UserViewModel(
+    private val repo: UserRepository,
+    private val orderRepository: OrderRepository
+) : ViewModel() {
 
     private val _profile = MutableStateFlow<UserProfile?>(null)
     val profile: StateFlow<UserProfile?> = _profile
+
+    private val _orders = MutableStateFlow<List<OrderResponse>>(emptyList())
+    val orders: StateFlow<List<OrderResponse>> = _orders
 
     private val _loading = MutableStateFlow(false)
     val loading: StateFlow<Boolean> = _loading
@@ -20,7 +29,6 @@ class UserViewModel(private val repo: UserRepository) : ViewModel() {
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
-    // 🔹 YA NO NECESITA TOKEN
     fun loadProfile() {
         _loading.value = true
         _error.value = null
@@ -31,6 +39,17 @@ class UserViewModel(private val repo: UserRepository) : ViewModel() {
 
             result.data?.let {
                 _profile.value = it
+            } ?: run {
+                _error.value = result.error
+            }
+        }
+    }
+
+    fun loadOrders() {
+        viewModelScope.launch {
+            val result = orderRepository.getAllOrders()
+            result.data?.let {
+                _orders.value = it
             } ?: run {
                 _error.value = result.error
             }
@@ -92,7 +111,3 @@ class UserViewModel(private val repo: UserRepository) : ViewModel() {
         }
     }
 }
-
-
-
-

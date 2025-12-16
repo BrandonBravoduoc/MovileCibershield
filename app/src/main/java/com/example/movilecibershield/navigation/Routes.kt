@@ -7,4 +7,5 @@ object Routes {
     const val PROFILE = "profile"
     const val CART = "cart"
     const val CHECKOUT = "checkout"
+    const val ORDER_HISTORY = "order_history"
 }

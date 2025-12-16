@@ -7,13 +7,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -27,9 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.movilecibershield.data.model.user.ContactResponse
 import com.example.movilecibershield.data.model.user.ContactUpdateWithAddress
@@ -45,8 +41,8 @@ fun EditContactCard(
     var name by remember { mutableStateOf(contact.name) }
     var lastName by remember { mutableStateOf(contact.lastName) }
     var phone by remember { mutableStateOf(contact.phone) }
-    var street by remember { mutableStateOf("") }
-    var number by remember { mutableStateOf("") }
+    var street by remember { mutableStateOf(contact.addressInfo.split(",")[0].trim()) }
+    var number by remember { mutableStateOf(contact.addressInfo.split(",")[1].trim()) }
 
     var regionExpanded by remember { mutableStateOf(false) }
     var communeExpanded by remember { mutableStateOf(false) }
@@ -107,8 +103,6 @@ fun EditContactCard(
                 label = { Text("Número") },
                 modifier = Modifier.fillMaxWidth()
             )
-
-            /* ---------- REGIÓN ---------- */
             ExposedDropdownMenuBox(
                 expanded = regionExpanded,
                 onExpandedChange = { regionExpanded = !regionExpanded }
@@ -143,8 +137,6 @@ fun EditContactCard(
                     }
                 }
             }
-
-            /* ---------- COMUNA ---------- */
             ExposedDropdownMenuBox(
                 expanded = communeExpanded,
                 onExpandedChange = { communeExpanded = !communeExpanded }
@@ -179,8 +171,6 @@ fun EditContactCard(
             }
 
             Spacer(modifier = Modifier.height(12.dp))
-
-            /* ---------- BOTÓN GUARDAR ---------- */
             Button(
                 onClick = {
                     val communeId = viewModel.selectedCommune?.id ?: return@Button
@@ -206,4 +196,3 @@ fun EditContactCard(
         }
     }
 }
-

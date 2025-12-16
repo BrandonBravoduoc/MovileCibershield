@@ -12,6 +12,7 @@ import com.example.movilecibershield.data.local.TokenCache
 import com.example.movilecibershield.data.local.TokenDataStore
 import com.example.movilecibershield.navigation.Routes
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 
 @Composable
 fun SplashScreen(
@@ -21,16 +22,18 @@ fun SplashScreen(
     LaunchedEffect(Unit) {
         delay(1500)
 
-        val token = tokenDataStore.getTokenOnce()
+        val token = tokenDataStore.getToken().first()
 
-        if (!token.isNullOrBlank()) {
-            navController.navigate(Routes.HOME) {
-                popUpTo(Routes.SPLASH) { inclusive = true }
-            }
+        TokenCache.token = token
+
+        val destination = if (!token.isNullOrBlank()) {
+            Routes.HOME
         } else {
-            navController.navigate(Routes.AUTH) {
-                popUpTo(Routes.SPLASH) { inclusive = true }
-            }
+            Routes.AUTH
+        }
+
+        navController.navigate(destination) {
+            popUpTo(Routes.SPLASH) { inclusive = true }
         }
     }
 
@@ -41,8 +44,3 @@ fun SplashScreen(
         Text(text = "CIBERSHIELD")
     }
 }
-
-
-
-
-

@@ -1,4 +1,5 @@
 package com.example.movilecibershield.viewmodel
+
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -37,9 +38,19 @@ class ProductViewModel(
             isLoading = false
 
             result?.let { res ->
-                res.data?.let { productList ->
-                    allProducts = productList
-                    products = productList
+                res.data?.let { productResponseList ->
+                    val mappedProducts = productResponseList.map {
+                        Product(
+                            id = it.id,
+                            nombre = it.productName,
+                            precio = it.price,
+                            foto = it.imageUrl ?: "",
+                            categoria = it.categoryName,
+                            marca = it.tradeMarkName
+                        )
+                    }
+                    allProducts = mappedProducts
+                    products = mappedProducts
                 }
 
                 res.error?.let { error ->

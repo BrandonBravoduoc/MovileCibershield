@@ -1,17 +1,36 @@
 package com.example.movilecibershield.ui.screens.user
 
-import androidx.compose.foundation.shape.RoundedCornerShape
-
-
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Divider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.movilecibershield.data.utils.uriToMultipart
+import com.example.movilecibershield.navigation.Routes
 import com.example.movilecibershield.ui.components.EditContactCard
 import com.example.movilecibershield.viewmodel.ContactEditViewModel
 import com.example.movilecibershield.viewmodel.UserViewModel
@@ -91,7 +111,6 @@ fun ProfileScreen(
                             .padding(16.dp)
                     ) {
 
-                        /* ---------- FOTO PERFIL ---------- */
                         Image(
                             painter = rememberAsyncImagePainter(
                                 selectedImageUri ?: user.imageUser
@@ -115,7 +134,6 @@ fun ProfileScreen(
 
                         Spacer(modifier = Modifier.height(12.dp))
 
-                        /* ---------- CARD ---------- */
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(16.dp)
@@ -145,6 +163,13 @@ fun ProfileScreen(
                                         Text("Editar contacto")
                                     }
 
+                                    Button(
+                                        onClick = { navController.navigate(Routes.ORDER_HISTORY) },
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+                                        Text("Historial de compras")
+                                    }
+
                                 } else {
 
                                     user.contact?.let { contact ->
@@ -166,7 +191,6 @@ fun ProfileScreen(
                                     }
                                 }
 
-                                /* ---------- GUARDAR FOTO ---------- */
                                 if (selectedImageUri != null) {
                                     Button(
                                         onClick = {
@@ -194,5 +218,3 @@ fun ProfileScreen(
         }
     }
 }
-
-

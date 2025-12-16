@@ -1,8 +1,5 @@
 package com.example.movilecibershield.data.repository
 
-
-
-
 import com.example.movilecibershield.data.model.user.ChangePassword
 import com.example.movilecibershield.data.model.user.ContactCreateWithAddress
 import com.example.movilecibershield.data.model.user.ContactResponse
@@ -90,4 +87,3 @@ class UserRepository(
         }
     }
 }
-

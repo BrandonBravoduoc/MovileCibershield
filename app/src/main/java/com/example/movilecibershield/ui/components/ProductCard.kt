@@ -44,7 +44,7 @@ fun ProductCard(
         colors = CardDefaults.cardColors(containerColor = Color.White),
         modifier = modifier
             .fillMaxWidth()
-            .clickable { /* TODO: Navigate to details */ }
+            .clickable { }
     ) {
         Column(
             modifier = Modifier.fillMaxWidth()
@@ -65,7 +65,6 @@ fun ProductCard(
             Column(
                 modifier = Modifier.padding(12.dp)
             ) {
-                // Marca (si existe)
                 product.marca?.let { marca ->
                     Text(
                         text = marca.uppercase(),
@@ -90,7 +89,6 @@ fun ProductCard(
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                // Categoría (si existe)
                 product.categoria?.let { categoria ->
                     Text(
                         text = categoria,

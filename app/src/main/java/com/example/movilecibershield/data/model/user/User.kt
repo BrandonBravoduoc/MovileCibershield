@@ -16,11 +16,6 @@ data class UserResponse(
     val nameRole: String
 )
 
-data class UserUpdate(
-    val newUserName: String,
-    val newEmail: String
-)
-
 data class ChangePassword(
     val currentPassword: String,
     val newPassword: String,

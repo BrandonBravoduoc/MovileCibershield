@@ -1,24 +1,26 @@
 package com.example.movilecibershield.navigation
 
-import com.example.movilecibershield.viewmodel.ProductViewModel
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.movilecibershield.data.local.TokenCache
 import com.example.movilecibershield.data.local.TokenDataStore
-import com.example.movilecibershield.ui.screens.CartScreen
-import com.example.movilecibershield.ui.screens.CheckoutScreen
 import com.example.movilecibershield.ui.screens.HomeScreen
 import com.example.movilecibershield.ui.screens.SplashScreen
 import com.example.movilecibershield.ui.screens.auth.AuthScreen
+import com.example.movilecibershield.ui.screens.order.CartScreen
+import com.example.movilecibershield.ui.screens.order.CheckoutScreen
+import com.example.movilecibershield.ui.screens.user.OrderHistoryScreen
 import com.example.movilecibershield.ui.screens.user.ProfileScreen
 import com.example.movilecibershield.ui.viewmodel.CartViewModel
-import com.example.movilecibershield.ui.viewmodel.CheckoutViewModel
 import com.example.movilecibershield.viewmodel.AuthViewModel
+import com.example.movilecibershield.viewmodel.CheckoutViewModel
 import com.example.movilecibershield.viewmodel.ContactEditViewModel
+import com.example.movilecibershield.viewmodel.ProductViewModel
 import com.example.movilecibershield.viewmodel.UserViewModel
-
+import kotlinx.coroutines.launch
 
 @Composable
 fun AppNavGraph(
@@ -31,6 +33,7 @@ fun AppNavGraph(
     tokenDataStore: TokenDataStore,
     contactEditViewModel: ContactEditViewModel
 ) {
+    val scope = rememberCoroutineScope()
     NavHost(
         navController = navController,
         startDestination = Routes.SPLASH
@@ -49,7 +52,7 @@ fun AppNavGraph(
                 viewModel = productViewModel,
                 cartViewModel = cartViewModel,
                 navController = navController,
-                tokenDataStore = tokenDataStore // Fixed: Changed : to =
+                tokenDataStore = tokenDataStore
             )
         }
 
@@ -59,6 +62,9 @@ fun AppNavGraph(
                 contactEditViewModel = contactEditViewModel,
                 navController = navController,
                 onLogout = {
+                    scope.launch {
+                        tokenDataStore.clearToken()
+                    }
                     TokenCache.token = null
                     navController.navigate(Routes.AUTH) {
                         popUpTo(0)
@@ -79,6 +85,13 @@ fun AppNavGraph(
             CheckoutScreen(
                 navController = navController,
                 viewModel = checkoutViewModel
+            )
+        }
+
+        composable(Routes.ORDER_HISTORY) {
+            OrderHistoryScreen(
+                navController = navController,
+                viewModel = userViewModel
             )
         }
     }

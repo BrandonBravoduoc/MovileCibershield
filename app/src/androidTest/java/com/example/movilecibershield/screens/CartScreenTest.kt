@@ -7,7 +7,7 @@ import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithText
 import androidx.navigation.compose.rememberNavController
 import com.example.movilecibershield.data.model.product.Product
-import com.example.movilecibershield.ui.screens.CartScreen
+import com.example.movilecibershield.ui.screens.order.CartScreen
 import com.example.movilecibershield.ui.viewmodel.CartViewModel
 import org.junit.Rule
 import org.junit.Test

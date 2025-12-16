@@ -23,6 +23,10 @@ class TokenDataStore(context: Context) {
     val tokenFlow: Flow<String?> = dataStore.data
         .map { preferences -> preferences[TOKEN_KEY] }
 
+    fun getToken(): Flow<String?> {
+        return tokenFlow
+    }
+
     suspend fun saveToken(token: String) {
         dataStore.edit { it[TOKEN_KEY] = token }
     }
@@ -35,6 +39,3 @@ class TokenDataStore(context: Context) {
         return dataStore.data.first()[TOKEN_KEY]
     }
 }
-
-
-

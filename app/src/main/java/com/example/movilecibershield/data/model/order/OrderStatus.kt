@@ -6,11 +6,6 @@ data class OrderStatusResponse(
     val description: String
 )
 
-data class OrderStatusCombo(
-    val id: Long,
-    val name: String
-)
-
 data class OrderStatusCreate(
     val id: Long,
     val name: String

@@ -15,8 +15,6 @@ import org.json.JSONObject
 import retrofit2.HttpException
 import java.io.IOException
 
-
-
 class AuthRepository(
     private val authApiService: AuthApiService
 ) {

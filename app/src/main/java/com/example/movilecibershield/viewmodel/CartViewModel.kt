@@ -66,7 +66,6 @@ class CartViewModel : ViewModel() {
         _cartMap.value = currentMap
     }
 
-    // Calcular total
     fun getTotal(): Double {
         return _cartItems.value.sumOf { it.totalPrice }
     }

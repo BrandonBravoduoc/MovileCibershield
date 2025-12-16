@@ -1,11 +1,12 @@
-package com.example.movilecibershield.ui.viewmodel
+package com.example.movilecibershield.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.movilecibershield.data.repository.CheckoutRepository
+import com.example.movilecibershield.data.repository.OrderRepository
+import com.example.movilecibershield.ui.viewmodel.CartViewModel
 
 class CheckoutViewModelFactory(
-    private val repository: CheckoutRepository,
+    private val repository: OrderRepository,
     private val cartViewModel: CartViewModel
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {

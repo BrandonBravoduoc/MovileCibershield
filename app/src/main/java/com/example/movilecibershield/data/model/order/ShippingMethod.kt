@@ -6,9 +6,3 @@ data class ShippingMethodResponse(
     val shippingCost: String,
     val activeStatus: Boolean
 )
-
-data class ShippingMethodCombo(
-    val id: Long,
-    val methodName: String,
-    val shippingCost: String
-)

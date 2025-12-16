@@ -22,7 +22,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.movilecibershield.data.local.TokenCache.token
 import com.example.movilecibershield.data.local.TokenDataStore
 import com.example.movilecibershield.navigation.Routes
 import com.example.movilecibershield.ui.components.AppBottomBar
@@ -50,7 +49,7 @@ fun HomeScreen(
         topBar = {
             Column(
                 modifier = Modifier
-                    .background(Color(0xFFF5F5F5)) // Color de fondo gris claro para la cabecera
+                    .background(Color(0xFFF5F5F5))
                     .padding(top = 16.dp, bottom = 8.dp)
             ) {
                 SearchBar(
@@ -75,7 +74,7 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(Color(0xFFF5F5F5)) // Fondo gris claro estilo tienda
+                .background(Color(0xFFF5F5F5))
         ) {
             when {
                 isLoading -> CircularProgressIndicator(
