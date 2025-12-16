@@ -32,7 +32,7 @@ import com.example.movilecibershield.ui.components.TextField
 fun LoginForm(
     isLoading: Boolean,
     errorMessage: String?,
-    onLogin: (LoginRequest) -> Unit, // ✅ CORRECCIÓN: Ahora espera un LoginRequest
+    onLogin: (LoginRequest) -> Unit,
     onGoToRegister: () -> Unit,
     onCancel: () -> Unit
 ) {
@@ -104,7 +104,6 @@ fun LoginForm(
                     }
 
                     if (valid) {
-                        // ✅ CORRECCIÓN: Se crea y envía el objeto LoginRequest.
                         onLogin(LoginRequest(email = email, password = password))
                     }
                 },

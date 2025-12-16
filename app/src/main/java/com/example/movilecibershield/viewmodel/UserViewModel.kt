@@ -39,7 +39,6 @@ class UserViewModel(
                 val profileResult = repo.getMyProfile()
                 profileResult.data?.let {
                     _profile.value = it
-                    // Una vez que tenemos el perfil, obtenemos el ID de usuario y cargamos las órdenes.
                     val userId = tokenDataStore.getUserId().first()
                     if (userId != null) {
                         loadOrders(userId)

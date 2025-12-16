@@ -8,7 +8,6 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
@@ -38,7 +37,6 @@ class TokenDataStore(context: Context) {
         dataStore.edit { it.remove(TOKEN_KEY) }
     }
 
-    // Funciones para el ID del usuario
     fun getUserId(): Flow<Long?> {
         return dataStore.data.map { preferences ->
             preferences[USER_ID_KEY]

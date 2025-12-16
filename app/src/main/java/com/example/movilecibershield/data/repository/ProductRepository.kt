@@ -19,17 +19,4 @@ class ProductRepository(private val productApiService: ProductApiService) {
             RepoResult(error = "Error inesperado al cargar los productos")
         }
     }
-
-    suspend fun getProductById(id: Long): RepoResult<ProductResponse> {
-        return try {
-            val response = productApiService.getProductById(id)
-            RepoResult(data = response.body())
-        } catch (e: HttpException) {
-            RepoResult(error = e.message())
-        } catch (e: IOException) {
-            RepoResult(error = "Sin conexión a internet")
-        } catch (e: Exception) {
-            RepoResult(error = "Error inesperado al cargar el producto")
-        }
-    }
 }

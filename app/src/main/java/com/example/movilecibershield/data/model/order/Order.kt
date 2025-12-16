@@ -1,8 +1,5 @@
 package com.example.movilecibershield.data.model.order
 
-import com.example.movilecibershield.data.model.order.OrderStatusResponse
-
-// --- Clases para la creación de órdenes ---
 data class OrderCreate(
     val paymentMethodId: Long,
     val shippingMethodId: Long,
@@ -17,14 +14,10 @@ data class CreateItem(
     val shippingMethodId: Int
 )
 
-// --- Clases para la respuesta de la API ---
-
-// NUEVO: Representa el objeto "user" anidado que envía la API.
 data class UserInOrder(
     val id: Long
 )
 
-// NUEVO: Representa el objeto "product" anidado en los detalles.
 data class ProductInOrder(
     val id: Long,
     val productName: String
@@ -43,7 +36,6 @@ data class OrderResponse(
     val orderDate: String,
     val total: String,
     val status: OrderStatusResponse,
-    // ✅ CORRECCIÓN: Se añade el campo 'user' para poder filtrar.
     val user: UserInOrder,
     val details: List<OrderDetailResponse>
 )

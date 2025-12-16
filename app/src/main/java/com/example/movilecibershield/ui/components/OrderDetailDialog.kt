@@ -2,7 +2,6 @@ package com.example.movilecibershield.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
@@ -26,7 +25,6 @@ fun OrderDetailDialog(
         title = { Text("Detalles de la orden #${order.orderNumber}") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                // ✅ CORRECCIÓN: Se usa una Card para cada producto, mejorando la legibilidad.
                 order.details.forEach { detail ->
                     Card(
                         modifier = Modifier.fillMaxWidth(),

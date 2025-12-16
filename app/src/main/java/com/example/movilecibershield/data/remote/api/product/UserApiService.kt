@@ -1,6 +1,11 @@
 package com.example.movilecibershield.data.remote.api.product
 
-import com.example.movilecibershield.data.model.user.*
+import com.example.movilecibershield.data.model.user.ChangePassword
+import com.example.movilecibershield.data.model.user.ContactCreateWithAddress
+import com.example.movilecibershield.data.model.user.ContactResponse
+import com.example.movilecibershield.data.model.user.ContactUpdateWithAddress
+import com.example.movilecibershield.data.model.user.UserProfile
+import com.example.movilecibershield.data.model.user.UserResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response

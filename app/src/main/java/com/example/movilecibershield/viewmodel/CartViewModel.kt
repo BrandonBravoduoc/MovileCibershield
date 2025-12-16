@@ -70,10 +70,6 @@ class CartViewModel : ViewModel() {
         return _cartItems.value.sumOf { it.totalPrice }
     }
 
-    fun getTotalItemsCount(): Int {
-        return _cartItems.value.sumOf { it.quantity }
-    }
-
     fun confirmPurchase() {
         viewModelScope.launch {
             _purchaseStatus.value = "LOADING"
@@ -87,7 +83,4 @@ class CartViewModel : ViewModel() {
         }
     }
 
-    fun clearStatus() {
-        _purchaseStatus.value = null
-    }
 }

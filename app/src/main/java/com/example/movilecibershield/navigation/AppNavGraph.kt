@@ -64,7 +64,6 @@ fun AppNavGraph(
                 onLogout = {
                     scope.launch {
                         tokenDataStore.clearToken()
-                        // ✅ CORRECCIÓN: Se limpia también el ID del usuario al cerrar sesión.
                         tokenDataStore.clearUserId()
                     }
                     TokenCache.token = null

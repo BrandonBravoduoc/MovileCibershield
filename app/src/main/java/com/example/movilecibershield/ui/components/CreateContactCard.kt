@@ -17,7 +17,12 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.movilecibershield.data.model.user.ContactCreateWithAddress
@@ -64,7 +69,6 @@ fun CreateContactCard(
             OutlinedTextField(value = street, onValueChange = { street = it }, label = { Text("Calle") }, modifier = Modifier.fillMaxWidth())
             OutlinedTextField(value = number, onValueChange = { number = it }, label = { Text("Número") }, modifier = Modifier.fillMaxWidth())
 
-            // Selector de Región
             ExposedDropdownMenuBox(expanded = regionExpanded, onExpandedChange = { regionExpanded = !regionExpanded }) {
                 OutlinedTextField(
                     readOnly = true,
@@ -89,7 +93,6 @@ fun CreateContactCard(
                 }
             }
 
-            // Selector de Comuna
             ExposedDropdownMenuBox(expanded = communeExpanded, onExpandedChange = { communeExpanded = !communeExpanded }) {
                 OutlinedTextField(
                     readOnly = true,

@@ -22,7 +22,6 @@ fun AppBottomBar(
     currentRoute: String?,
     tokenDataStore: TokenDataStore
 ) {
-    // ✅ CORRECCIÓN: Se utiliza el método getToken() en lugar de la propiedad tokenFlow.
     val token by tokenDataStore.getToken().collectAsState(initial = null)
 
     NavigationBar {
