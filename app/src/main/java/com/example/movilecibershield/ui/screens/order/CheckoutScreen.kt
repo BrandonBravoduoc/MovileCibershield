@@ -71,6 +71,7 @@ fun CheckoutScreen(
             navController.navigate(Routes.HOME) {
                 popUpTo(Routes.CHECKOUT) { inclusive = true }
             }
+            viewModel.clearStatus()
         }
     }
 

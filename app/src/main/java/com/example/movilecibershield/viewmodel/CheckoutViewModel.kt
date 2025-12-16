@@ -109,5 +109,10 @@ class CheckoutViewModel(
                 _purchaseStatus.value = "ERROR"
             }
         }
+
+    }
+
+    fun clearStatus() {
+        _purchaseStatus.value = null
     }
 }
