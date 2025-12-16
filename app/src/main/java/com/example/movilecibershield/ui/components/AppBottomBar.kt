@@ -16,43 +16,51 @@ import com.example.movilecibershield.data.local.TokenDataStore
 import com.example.movilecibershield.navigation.Routes
 
 
+
 @Composable
 fun AppBottomBar(
     navController: NavController,
     currentRoute: String?,
-    tokenDataStore: TokenDataStore
+    tokenDataStore: TokenDataStore,
+    excludedRoute: String? = null
 ) {
     val token by tokenDataStore.getToken().collectAsState(initial = null)
 
     NavigationBar {
 
-        NavigationBarItem(
-            selected = currentRoute == Routes.HOME,
-            onClick = { navController.navigate(Routes.HOME) },
-            icon = { Icon(Icons.Default.Home, contentDescription = null) },
-            label = { Text("Inicio") }
-        )
+        if (excludedRoute != Routes.HOME) {
+            NavigationBarItem(
+                selected = currentRoute == Routes.HOME,
+                onClick = { navController.navigate(Routes.HOME) },
+                icon = { Icon(Icons.Default.Home, contentDescription = null) },
+                label = { Text("Inicio") }
+            )
+        }
 
-        NavigationBarItem(
-            selected = currentRoute == Routes.CART,
-            onClick = { navController.navigate(Routes.CART) },
-            icon = { Icon(Icons.Default.ShoppingCart, contentDescription = null) },
-            label = { Text("Carrito") }
-        )
+        if (excludedRoute != Routes.CART) {
+            NavigationBarItem(
+                selected = currentRoute == Routes.CART,
+                onClick = { navController.navigate(Routes.CART) },
+                icon = { Icon(Icons.Default.ShoppingCart, contentDescription = null) },
+                label = { Text("Carrito") }
+            )
+        }
 
-        NavigationBarItem(
-            selected = currentRoute == Routes.PROFILE,
-            onClick = {
-                if (token.isNullOrBlank()) {
-                    navController.navigate(Routes.AUTH)
-                } else {
-                    navController.navigate(Routes.PROFILE)
+        if (excludedRoute != Routes.PROFILE) {
+            NavigationBarItem(
+                selected = currentRoute == Routes.PROFILE,
+                onClick = {
+                    if (token.isNullOrBlank()) {
+                        navController.navigate(Routes.AUTH)
+                    } else {
+                        navController.navigate(Routes.PROFILE)
+                    }
+                },
+                icon = { Icon(Icons.Default.Person, contentDescription = null) },
+                label = {
+                    Text(if (token.isNullOrBlank()) "Iniciar sesión" else "Perfil")
                 }
-            },
-            icon = { Icon(Icons.Default.Person, contentDescription = null) },
-            label = {
-                Text(if (token.isNullOrBlank()) "Iniciar sesión" else "Perfil")
-            }
-        )
+            )
+        }
     }
 }

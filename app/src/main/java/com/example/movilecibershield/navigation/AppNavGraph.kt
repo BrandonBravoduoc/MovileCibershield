@@ -61,6 +61,7 @@ fun AppNavGraph(
                 viewModel = userViewModel,
                 contactEditViewModel = contactEditViewModel,
                 navController = navController,
+                tokenDataStore = tokenDataStore, // <--- AÑADE ESTA LÍNEA
                 onLogout = {
                     scope.launch {
                         tokenDataStore.clearToken()

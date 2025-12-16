@@ -17,8 +17,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -38,19 +40,30 @@ fun HomeScreen(
     cartViewModel: CartViewModel,
     navController: NavController,
     tokenDataStore: TokenDataStore
-    ) {
+) {
     val products = viewModel.products
     val isLoading = viewModel.isLoading
     val error = viewModel.errorMessage
 
     val currentRoute = Routes.HOME
 
+    val backgroundBrush = remember {
+        Brush.verticalGradient(
+            colors = listOf(
+                Color(0xFF111827),
+                Color(0xFF020617)
+            )
+        )
+    }
+
+    val topBarColor = Color(0xFF111827)
+
     Scaffold(
         topBar = {
             Column(
                 modifier = Modifier
-                    .background(Color(0xFFF5F5F5))
-                    .padding(top = 16.dp, bottom = 8.dp)
+                    .background(topBarColor)
+                    .padding(top = 50.dp, bottom = 16.dp)
             ) {
                 SearchBar(
                     modifier = Modifier
@@ -74,15 +87,16 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(Color(0xFFF5F5F5))
+                .background(backgroundBrush)
         ) {
             when {
                 isLoading -> CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center)
+                    modifier = Modifier.align(Alignment.Center),
+                    color = Color.White
                 )
 
                 error != null -> Text(
-                    text = error,
+                    text = error ?: "Error desconocido",
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.align(Alignment.Center)
                 )
@@ -97,9 +111,9 @@ fun HomeScreen(
                     items(products) { product ->
                         ProductCard(
                             product = product,
-                            onAddToCart = { 
+                            onAddToCart = {
                                 cartViewModel.addToCart(it)
-                                println("Agregado al carrito: ${it.nombre}") 
+                                println("Agregado al carrito: ${it.nombre}")
                             }
                         )
                     }
