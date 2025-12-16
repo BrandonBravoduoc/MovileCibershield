@@ -42,14 +42,14 @@ class CheckoutViewModel(
             try {
                 val paymentMethodsResult = repository.getAllPaymentMethods()
                 if (paymentMethodsResult.data != null) {
-                    _paymentMethods.value = paymentMethodsResult.data!!
+                    _paymentMethods.value = paymentMethodsResult.data
                 } else {
                     _error.value = paymentMethodsResult.error
                 }
 
                 val shippingMethodsResult = repository.getAllShippingMethods()
                 if (shippingMethodsResult.data != null) {
-                    _shippingMethods.value = shippingMethodsResult.data!!
+                    _shippingMethods.value = shippingMethodsResult.data
                 } else {
                     _error.value = shippingMethodsResult.error
                 }
