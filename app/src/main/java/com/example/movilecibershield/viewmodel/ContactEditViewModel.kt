@@ -25,6 +25,8 @@ class ContactEditViewModel(
 
     var selectedRegion by mutableStateOf<RegionCombo?>(null)
     var selectedCommune by mutableStateOf<CommuneCombo?>(null)
+    var updateStatus by mutableStateOf<String?>(null)
+        private set
 
     fun loadRegions() {
         viewModelScope.launch {
@@ -44,9 +46,17 @@ class ContactEditViewModel(
 
     fun updateContact(dto: ContactUpdateWithAddress) {
         viewModelScope.launch {
-            userRepository.updateContact(dto)
+            updateStatus = "LOADING"
+            val result = userRepository.updateContact(dto)
+            if (result.data != null) {
+                updateStatus = "SUCCESS"
+            } else {
+                updateStatus = "ERROR"
+            }
         }
     }
+
+    fun clearStatus() {
+        updateStatus = null
+    }
 }
-
-

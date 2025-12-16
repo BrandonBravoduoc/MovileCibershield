@@ -1,6 +1,8 @@
 package com.example.movilecibershield.ui.components
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -25,7 +28,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.movilecibershield.data.model.user.ContactResponse
 import com.example.movilecibershield.data.model.user.ContactUpdateWithAddress
@@ -38,17 +43,50 @@ fun EditContactCard(
     contact: ContactResponse,
     onSuccess: () -> Unit
 ) {
+    val context = LocalContext.current // Necesario para los Toasts
+
     var name by remember { mutableStateOf(contact.name) }
     var lastName by remember { mutableStateOf(contact.lastName) }
     var phone by remember { mutableStateOf(contact.phone) }
-    var street by remember { mutableStateOf(contact.addressInfo.split(",")[0].trim()) }
-    var number by remember { mutableStateOf(contact.addressInfo.split(",")[1].trim()) }
+    val lastCommaIndex = contact.addressInfo.lastIndexOf(',')
+
+    var street by remember(contact) {
+        mutableStateOf(
+            if (lastCommaIndex != -1) {
+                contact.addressInfo.substring(0, lastCommaIndex).trim()
+            } else {
+                contact.addressInfo
+            }
+        )
+    }
+
+    var number by remember(contact) {
+        mutableStateOf(
+            if (lastCommaIndex != -1) {
+                contact.addressInfo.substring(lastCommaIndex + 1).trim()
+            } else {
+                ""
+            }
+        )
+    }
+    // --------------------------------
 
     var regionExpanded by remember { mutableStateOf(false) }
     var communeExpanded by remember { mutableStateOf(false) }
+    val status = viewModel.updateStatus
 
     LaunchedEffect(Unit) {
         viewModel.loadRegions()
+    }
+    LaunchedEffect(status) {
+        if (status == "SUCCESS") {
+            Toast.makeText(context, "Contacto actualizado correctamente", Toast.LENGTH_SHORT).show()
+            viewModel.clearStatus() // Limpiamos para la próxima vez
+            onSuccess() // Ahora sí cerramos y recargamos
+        } else if (status == "ERROR") {
+            Toast.makeText(context, "Error al actualizar", Toast.LENGTH_SHORT).show()
+            viewModel.clearStatus()
+        }
     }
 
     Card(
@@ -57,141 +95,165 @@ fun EditContactCard(
             .heightIn(max = 520.dp),
         shape = RoundedCornerShape(16.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-
-            Text(
-                text = "Editar contacto",
-                style = MaterialTheme.typography.titleMedium
-            )
-
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                label = { Text("Nombre") },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            OutlinedTextField(
-                value = lastName,
-                onValueChange = { lastName = it },
-                label = { Text("Apellido") },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            OutlinedTextField(
-                value = phone,
-                onValueChange = { phone = it },
-                label = { Text("Teléfono") },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            OutlinedTextField(
-                value = street,
-                onValueChange = { street = it },
-                label = { Text("Calle") },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            OutlinedTextField(
-                value = number,
-                onValueChange = { number = it },
-                label = { Text("Número") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            ExposedDropdownMenuBox(
-                expanded = regionExpanded,
-                onExpandedChange = { regionExpanded = !regionExpanded }
+        Box(contentAlignment = Alignment.Center) {
+            Column(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                OutlinedTextField(
-                    readOnly = true,
-                    value = viewModel.selectedRegion?.regionName ?: "",
-                    onValueChange = {},
-                    label = { Text("Región") },
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = regionExpanded)
-                    },
-                    modifier = Modifier
-                        .menuAnchor()
-                        .fillMaxWidth()
+
+                Text(
+                    text = "Editar contacto",
+                    style = MaterialTheme.typography.titleMedium
                 )
 
-                ExposedDropdownMenu(
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Nombre") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = lastName,
+                    onValueChange = { lastName = it },
+                    label = { Text("Apellido") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = phone,
+                    onValueChange = { phone = it },
+                    label = { Text("Teléfono") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = street,
+                    onValueChange = { street = it },
+                    label = { Text("Calle") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = number,
+                    onValueChange = { number = it },
+                    label = { Text("Número") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                // Selector de Región
+                ExposedDropdownMenuBox(
                     expanded = regionExpanded,
-                    onDismissRequest = { regionExpanded = false }
+                    onExpandedChange = { regionExpanded = !regionExpanded }
                 ) {
-                    viewModel.regions.forEach { region ->
-                        DropdownMenuItem(
-                            text = { Text(region.regionName) },
-                            onClick = {
-                                viewModel.selectedRegion = region
-                                viewModel.loadCommunes(region.id)
-                                viewModel.selectedCommune = null
-                                regionExpanded = false
-                            }
-                        )
-                    }
-                }
-            }
-            ExposedDropdownMenuBox(
-                expanded = communeExpanded,
-                onExpandedChange = { communeExpanded = !communeExpanded }
-            ) {
-                OutlinedTextField(
-                    readOnly = true,
-                    value = viewModel.selectedCommune?.nameCommunity ?: "",
-                    onValueChange = {},
-                    label = { Text("Comuna") },
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = communeExpanded)
-                    },
-                    modifier = Modifier
-                        .menuAnchor()
-                        .fillMaxWidth()
-                )
-
-                ExposedDropdownMenu(
-                    expanded = communeExpanded,
-                    onDismissRequest = { communeExpanded = false }
-                ) {
-                    viewModel.communes.forEach { commune ->
-                        DropdownMenuItem(
-                            text = { Text(commune.nameCommunity) },
-                            onClick = {
-                                viewModel.selectedCommune = commune
-                                communeExpanded = false
-                            }
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-            Button(
-                onClick = {
-                    val communeId = viewModel.selectedCommune?.id ?: return@Button
-
-                    viewModel.updateContact(
-                        ContactUpdateWithAddress(
-                            id = contact.id,
-                            name = name,
-                            lastName = lastName,
-                            phone = phone,
-                            street = street,
-                            number = number,
-                            communeId = communeId
-                        )
+                    OutlinedTextField(
+                        readOnly = true,
+                        value = viewModel.selectedRegion?.regionName ?: "",
+                        onValueChange = {},
+                        label = { Text("Región") },
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = regionExpanded)
+                        },
+                        modifier = Modifier
+                            .menuAnchor()
+                            .fillMaxWidth()
                     )
 
-                    onSuccess()
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Guardar cambios")
+                    ExposedDropdownMenu(
+                        expanded = regionExpanded,
+                        onDismissRequest = { regionExpanded = false }
+                    ) {
+                        viewModel.regions.forEach { region ->
+                            DropdownMenuItem(
+                                text = { Text(region.regionName) },
+                                onClick = {
+                                    viewModel.selectedRegion = region
+                                    viewModel.loadCommunes(region.id)
+                                    viewModel.selectedCommune = null
+                                    regionExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+
+                ExposedDropdownMenuBox(
+                    expanded = communeExpanded,
+                    onExpandedChange = { communeExpanded = !communeExpanded }
+                ) {
+                    OutlinedTextField(
+                        readOnly = true,
+                        value = viewModel.selectedCommune?.nameCommunity ?: "",
+                        onValueChange = {},
+                        label = { Text("Comuna") },
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = communeExpanded)
+                        },
+                        modifier = Modifier
+                            .menuAnchor()
+                            .fillMaxWidth()
+                    )
+
+                    ExposedDropdownMenu(
+                        expanded = communeExpanded,
+                        onDismissRequest = { communeExpanded = false }
+                    ) {
+                        viewModel.communes.forEach { commune ->
+                            DropdownMenuItem(
+                                text = { Text(commune.nameCommunity) },
+                                onClick = {
+                                    viewModel.selectedCommune = commune
+                                    communeExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Button(
+                    onClick = {
+                        // Validación explícita de la comuna
+                        val communeId = viewModel.selectedCommune?.id
+                        if (communeId == null) {
+                            Toast.makeText(context, "Debes seleccionar una comuna nuevamente", Toast.LENGTH_LONG).show()
+                            return@Button
+                        }
+
+                        viewModel.updateContact(
+                            ContactUpdateWithAddress(
+                                id = contact.id,
+                                name = name,
+                                lastName = lastName,
+                                phone = phone,
+                                street = street,
+                                number = number,
+                                communeId = communeId
+                            )
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = status != "LOADING"
+                ) {
+                    if (status == "LOADING") {
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .height(24.dp)
+                                .padding(end = 8.dp),
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                        Text("Guardando...")
+                    } else {
+                        Text("Guardar cambios")
+                    }
+                }
+            }
+
+            if (status == "LOADING") {
+                CircularProgressIndicator()
             }
         }
     }
