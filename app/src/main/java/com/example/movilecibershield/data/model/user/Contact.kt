@@ -29,13 +29,3 @@ data class ContactResponse(
 )
 
 
-data class ContactEditUI(
-    val id: Long,
-    val name: String,
-    val lastName: String,
-    val phone: String,
-    val street: String,
-    val number: String,
-    val regionId: Long,
-    val communeId: Long
-)
