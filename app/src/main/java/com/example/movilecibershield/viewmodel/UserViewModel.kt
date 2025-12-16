@@ -20,15 +20,8 @@ class UserViewModel(private val repo: UserRepository) : ViewModel() {
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
-    fun loadProfile(token: String?) {
-
-        if (token == null) {
-            _loading.value = false
-            _error.value = null
-            _profile.value = null
-            return
-        }
-
+    // 🔹 YA NO NECESITA TOKEN
+    fun loadProfile() {
         _loading.value = true
         _error.value = null
 
@@ -36,51 +29,45 @@ class UserViewModel(private val repo: UserRepository) : ViewModel() {
             val result = repo.getMyProfile()
             _loading.value = false
 
-            result.data?.let { profile ->
-                _profile.value = profile
+            result.data?.let {
+                _profile.value = it
             } ?: run {
                 _error.value = result.error
             }
         }
     }
 
-
-    fun createContact(dto: ContactCreateWithAddress, token: String?) {
+    fun createContact(dto: ContactCreateWithAddress) {
         viewModelScope.launch {
             val result = repo.createContact(dto)
-
             if (result.data != null) {
-                loadProfile(token)
+                loadProfile()
             } else {
                 _error.value = result.error
             }
         }
     }
 
-    fun updateContact(dto: ContactUpdateWithAddress, token: String?) {
+    fun updateContact(dto: ContactUpdateWithAddress) {
         viewModelScope.launch {
             val result = repo.updateContact(dto)
-
             if (result.data != null) {
-                loadProfile(token)
+                loadProfile()
             } else {
                 _error.value = result.error
             }
         }
     }
-
 
     fun updateUser(
         userName: RequestBody?,
         email: RequestBody?,
-        imageUser: MultipartBody.Part?,
-        token: String?
+        imageUser: MultipartBody.Part?
     ) {
         viewModelScope.launch {
             val result = repo.updateUser(userName, email, imageUser)
-
             if (result.data != null) {
-                loadProfile(token)
+                loadProfile()
             } else {
                 _error.value = result.error
             }
@@ -105,6 +92,7 @@ class UserViewModel(private val repo: UserRepository) : ViewModel() {
         }
     }
 }
+
 
 
 

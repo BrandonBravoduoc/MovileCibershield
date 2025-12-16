@@ -1,6 +1,13 @@
 package com.example.movilecibershield.ui.screens.user
 
+import androidx.compose.foundation.shape.RoundedCornerShape
+
+
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
@@ -9,128 +16,183 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.example.movilecibershield.data.utils.uriToMultipart
+import com.example.movilecibershield.ui.components.EditContactCard
+import com.example.movilecibershield.viewmodel.ContactEditViewModel
 import com.example.movilecibershield.viewmodel.UserViewModel
-import com.example.movilecibershield.navigation.Routes
-import com.example.movilecibershield.ui.components.AppBottomBar
 
 @Composable
 fun ProfileScreen(
     viewModel: UserViewModel,
+    contactEditViewModel: ContactEditViewModel,
     navController: NavController,
-    token: String?
+    onLogout: () -> Unit
 ) {
     val profile by viewModel.profile.collectAsState()
     val loading by viewModel.loading.collectAsState()
     val error by viewModel.error.collectAsState()
 
-    LaunchedEffect(token) {
-        viewModel.loadProfile(token)
+    var editMode by remember { mutableStateOf(false) }
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+
+    val context = LocalContext.current
+
+    val imagePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        if (uri != null) {
+            selectedImageUri = uri
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.loadProfile()
     }
 
     Scaffold(
         bottomBar = {
-            AppBottomBar(
-                navController = navController,
-                currentRoute = Routes.PROFILE,
-                token = token
-            )
+            OutlinedButton(
+                onClick = onLogout,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp)
+            ) {
+                Text("Cerrar sesión")
+            }
         }
-    ) { innerPadding ->
+    ) { padding ->
 
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .padding(16.dp)
+                .padding(padding),
+            contentAlignment = Alignment.TopCenter
         ) {
 
-            if (loading) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                return@Box
-            }
+            when {
+                loading -> CircularProgressIndicator()
 
-            error?.let {
-                Column(
-                    modifier = Modifier.align(Alignment.Center),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(text = "Error: $it", color = MaterialTheme.colorScheme.error)
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Button(onClick = { viewModel.loadProfile(token) }) {
-                        Text("Reintentar")
-                    }
-                }
-                return@Box
-            }
+                error != null -> Text(
+                    text = error ?: "",
+                    color = MaterialTheme.colorScheme.error
+                )
 
-            if (token == null) {
-                Column(
-                    modifier = Modifier.align(Alignment.Center),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text("Debes iniciar sesión para ver tu perfil")
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Button(onClick = { navController.navigate(Routes.AUTH) }) {
-                        Text("Iniciar sesión")
-                    }
-                }
-                return@Box
-            }
+                profile != null -> {
+                    val user = profile!!
 
-            profile?.let { user ->
-
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-
-                    Image(
-                        painter = rememberAsyncImagePainter(user.imageUser),
-                        contentDescription = "Foto de perfil",
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
-                            .size(110.dp)
-                            .clip(CircleShape),
-                        contentScale = ContentScale.Crop
-                    )
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    Text(text = user.userName, style = MaterialTheme.typography.titleLarge)
-                    Text(text = user.email, style = MaterialTheme.typography.bodyMedium)
-
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    if (user.contact != null) {
-                        Text("Nombre: ${user.contact.name} ${user.contact.lastName}")
-                        Text("Teléfono: ${user.contact.phone}")
-                        Text("Dirección: ${user.contact.addressInfo}")
-                    } else {
-                        Text("No has agregado información de contacto")
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Button(
-                            onClick = {
-
-                            }
-                        ) {
-                            Text("Agregar contacto")
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(20.dp))
-
-
-                    Button(
-                        onClick = {
-
-                        }
+                            .fillMaxWidth()
+                            .padding(16.dp)
                     ) {
-                        Text("Editar perfil")
+
+                        /* ---------- FOTO PERFIL ---------- */
+                        Image(
+                            painter = rememberAsyncImagePainter(
+                                selectedImageUri ?: user.imageUser
+                            ),
+                            contentDescription = "Foto perfil",
+                            modifier = Modifier
+                                .size(120.dp)
+                                .clip(CircleShape)
+                                .clickable {
+                                    imagePicker.launch("image/*")
+                                },
+                            contentScale = ContentScale.Crop
+                        )
+
+                        if (selectedImageUri != null) {
+                            Text(
+                                text = "Toca Guardar para aplicar la foto",
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        /* ---------- CARD ---------- */
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+
+                                Text(user.userName, style = MaterialTheme.typography.titleLarge)
+                                Text(user.email)
+
+                                Divider()
+
+                                if (!editMode) {
+
+                                    user.contact?.let { contact ->
+                                        Text("Nombre: ${contact.name} ${contact.lastName}")
+                                        Text("Teléfono: ${contact.phone}")
+                                        Text("Dirección: ${contact.addressInfo}")
+                                    }
+
+                                    Button(
+                                        onClick = { editMode = true },
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+                                        Text("Editar contacto")
+                                    }
+
+                                } else {
+
+                                    user.contact?.let { contact ->
+                                        EditContactCard(
+                                            viewModel = contactEditViewModel,
+                                            contact = contact,
+                                            onSuccess = {
+                                                editMode = false
+                                                viewModel.loadProfile()
+                                            }
+                                        )
+                                    }
+
+                                    OutlinedButton(
+                                        onClick = { editMode = false },
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+                                        Text("Cancelar")
+                                    }
+                                }
+
+                                /* ---------- GUARDAR FOTO ---------- */
+                                if (selectedImageUri != null) {
+                                    Button(
+                                        onClick = {
+                                            val imagePart =
+                                                uriToMultipart(context, selectedImageUri!!)
+
+                                            viewModel.updateUser(
+                                                userName = null,
+                                                email = null,
+                                                imageUser = imagePart,
+                                            )
+
+                                            selectedImageUri = null
+                                        },
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+                                        Text("Guardar foto")
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
     }
 }
+
+

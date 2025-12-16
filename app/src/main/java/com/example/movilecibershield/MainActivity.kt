@@ -1,5 +1,6 @@
 package com.example.movilecibershield
 
+import ProductViewModel
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -9,10 +10,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
+import com.example.movilecibershield.data.local.TokenCache.token
 import com.example.movilecibershield.data.local.TokenDataStore
 import com.example.movilecibershield.data.remote.ConfigApi
 import com.example.movilecibershield.data.repository.AuthRepository
 import com.example.movilecibershield.data.repository.CheckoutRepository
+import com.example.movilecibershield.data.repository.LocationRepository
 import com.example.movilecibershield.data.repository.ProductRepository
 import com.example.movilecibershield.data.repository.UserRepository
 import com.example.movilecibershield.navigation.AppNavGraph
@@ -22,7 +25,8 @@ import com.example.movilecibershield.ui.viewmodel.CheckoutViewModel
 import com.example.movilecibershield.ui.viewmodel.CheckoutViewModelFactory
 import com.example.movilecibershield.viewmodel.AuthViewModel
 import com.example.movilecibershield.viewmodel.AuthViewModelFactory
-import com.example.movilecibershield.viewmodel.ProductViewModel
+import com.example.movilecibershield.viewmodel.ContactEditViewModel
+import com.example.movilecibershield.viewmodel.ContactEditViewModelFactory
 import com.example.movilecibershield.viewmodel.ProductViewModelFactory
 import com.example.movilecibershield.viewmodel.UserViewModel
 import com.example.movilecibershield.viewmodel.UserViewModelFactory
@@ -40,6 +44,7 @@ class MainActivity : ComponentActivity() {
 
                 // -------- CART --------
                 val cartViewModel: CartViewModel = viewModel()
+
 
                 // -------- AUTH --------
                 val authRepository = remember {
@@ -79,6 +84,19 @@ class MainActivity : ComponentActivity() {
                     )
                 )
 
+                // -------- LOCATION --------
+                val locationRepository = remember {
+                    LocationRepository(api = ConfigApi.locationApiService)
+                }
+
+                // -------- CONTACT EDIT --------
+                val contactEditViewModel: ContactEditViewModel = viewModel(
+                    factory = ContactEditViewModelFactory(
+                        locationRepository = locationRepository,
+                        userRepository = userRepository
+                    )
+                )
+
                  // -------- CHECKOUT --------
                 val checkoutRepository = remember {
                     CheckoutRepository(
@@ -102,7 +120,8 @@ class MainActivity : ComponentActivity() {
                         userViewModel = userViewModel,
                         cartViewModel = cartViewModel,
                         checkoutViewModel = checkoutViewModel,
-                        tokenDataStore = tokenDataStore
+                        tokenDataStore = tokenDataStore,
+                        contactEditViewModel = contactEditViewModel
                     )
                 }
             }

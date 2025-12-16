@@ -2,11 +2,10 @@ package com.example.movilecibershield.navigation
 
 import com.example.movilecibershield.viewmodel.ProductViewModel
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.movilecibershield.data.local.TokenCache
 import com.example.movilecibershield.data.local.TokenDataStore
 import com.example.movilecibershield.ui.screens.CartScreen
 import com.example.movilecibershield.ui.screens.CheckoutScreen
@@ -17,6 +16,7 @@ import com.example.movilecibershield.ui.screens.user.ProfileScreen
 import com.example.movilecibershield.ui.viewmodel.CartViewModel
 import com.example.movilecibershield.ui.viewmodel.CheckoutViewModel
 import com.example.movilecibershield.viewmodel.AuthViewModel
+import com.example.movilecibershield.viewmodel.ContactEditViewModel
 import com.example.movilecibershield.viewmodel.UserViewModel
 
 
@@ -28,10 +28,9 @@ fun AppNavGraph(
     productViewModel: ProductViewModel,
     cartViewModel: CartViewModel,
     checkoutViewModel: CheckoutViewModel,
-    tokenDataStore: TokenDataStore
+    tokenDataStore: TokenDataStore,
+    contactEditViewModel: ContactEditViewModel
 ) {
-    val token by tokenDataStore.getToken.collectAsState(initial = null)
-
     NavHost(
         navController = navController,
         startDestination = Routes.SPLASH
@@ -50,15 +49,21 @@ fun AppNavGraph(
                 viewModel = productViewModel,
                 cartViewModel = cartViewModel,
                 navController = navController,
-                token = token
+                tokenDataStore = tokenDataStore // Fixed: Changed : to =
             )
         }
 
         composable(Routes.PROFILE) {
             ProfileScreen(
                 viewModel = userViewModel,
+                contactEditViewModel = contactEditViewModel,
                 navController = navController,
-                token = token
+                onLogout = {
+                    TokenCache.token = null
+                    navController.navigate(Routes.AUTH) {
+                        popUpTo(0)
+                    }
+                },
             )
         }
 
@@ -66,7 +71,7 @@ fun AppNavGraph(
             CartScreen(
                 viewModel = cartViewModel,
                 navController = navController,
-                token = token
+                tokenDataStore = tokenDataStore
             )
         }
 

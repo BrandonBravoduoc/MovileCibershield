@@ -9,7 +9,10 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.navigation.NavController
+import com.example.movilecibershield.data.local.TokenDataStore
 import com.example.movilecibershield.navigation.Routes
 
 
@@ -17,8 +20,10 @@ import com.example.movilecibershield.navigation.Routes
 fun AppBottomBar(
     navController: NavController,
     currentRoute: String?,
-    token: String?
+    tokenDataStore: TokenDataStore
 ) {
+    val token by tokenDataStore.tokenFlow.collectAsState(initial = null)
+
     NavigationBar {
 
         NavigationBarItem(
@@ -38,13 +43,17 @@ fun AppBottomBar(
         NavigationBarItem(
             selected = currentRoute == Routes.PROFILE,
             onClick = {
-                if (token == null)
+                if (token.isNullOrBlank()) {
                     navController.navigate(Routes.AUTH)
-                else
+                } else {
                     navController.navigate(Routes.PROFILE)
+                }
             },
             icon = { Icon(Icons.Default.Person, contentDescription = null) },
-            label = { Text(if (token == null) "Iniciar sesión" else "Perfil") }
+            label = {
+                Text(if (token.isNullOrBlank()) "Iniciar sesión" else "Perfil")
+            }
         )
     }
 }
+

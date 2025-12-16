@@ -8,7 +8,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
-import com.example.movilecibershield.data.local.TokenCache.token
+import com.example.movilecibershield.data.local.TokenCache
 import com.example.movilecibershield.data.local.TokenDataStore
 import com.example.movilecibershield.navigation.Routes
 import kotlinx.coroutines.delay
@@ -18,11 +18,12 @@ fun SplashScreen(
     navController: NavHostController,
     tokenDataStore: TokenDataStore
 ) {
-
-    LaunchedEffect(token) {
+    LaunchedEffect(Unit) {
         delay(1500)
 
-        if (token != null) {
+        val token = tokenDataStore.getTokenOnce()
+
+        if (!token.isNullOrBlank()) {
             navController.navigate(Routes.HOME) {
                 popUpTo(Routes.SPLASH) { inclusive = true }
             }
@@ -37,8 +38,11 @@ fun SplashScreen(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        Text(text = "CiberShield")
+        Text(text = "CIBERSHIELD")
     }
 }
+
+
+
 
 

@@ -10,10 +10,11 @@ class SplashViewModel(
     tokenDataStore: TokenDataStore
 ) : ViewModel() {
 
-    val token = tokenDataStore.getToken
+    val token = tokenDataStore.tokenFlow
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = null
         )
 }
+

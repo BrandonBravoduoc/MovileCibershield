@@ -46,6 +46,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.movilecibershield.data.local.TokenDataStore
 import com.example.movilecibershield.navigation.Routes
 import com.example.movilecibershield.ui.components.AppBottomBar
 import com.example.movilecibershield.ui.viewmodel.CartItem
@@ -56,7 +57,7 @@ import com.example.movilecibershield.ui.viewmodel.CartViewModel
 fun CartScreen(
     viewModel: CartViewModel,
     navController: NavController,
-    token: String?
+    tokenDataStore: TokenDataStore
 ) {
     val cartItems by viewModel.cartItems.collectAsState()
     val status by viewModel.purchaseStatus.collectAsState()
@@ -76,7 +77,7 @@ fun CartScreen(
             AppBottomBar(
                 navController = navController,
                 currentRoute = Routes.CART,
-                token = token
+                tokenDataStore = tokenDataStore
             )
         }
     ) { padding ->

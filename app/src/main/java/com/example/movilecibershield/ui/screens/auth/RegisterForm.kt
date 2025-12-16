@@ -13,7 +13,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -32,6 +31,10 @@ fun RegisterForm(
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
 
+    var userNameError by remember { mutableStateOf<String?>(null) }
+    var emailError by remember { mutableStateOf<String?>(null) }
+    var passwordError by remember { mutableStateOf<String?>(null) }
+    var confirmPasswordError by remember { mutableStateOf<String?>(null) }
 
     Card(
         modifier = Modifier
@@ -53,48 +56,96 @@ fun RegisterForm(
 
             TextField(
                 value = userName,
-                onValueChange = { userName = it },
+                onValueChange = {
+                    userName = it
+                    userNameError = null
+                },
                 label = "Usuario",
-                modifier = Modifier.fillMaxWidth(),
+                isError = userNameError != null,
+                errorText = userNameError,
+                modifier = Modifier.fillMaxWidth()
             )
 
             TextField(
                 value = email,
-                onValueChange = { email = it },
+                onValueChange = {
+                    email = it
+                    emailError = null
+                },
                 label = "Email",
-                modifier = Modifier.fillMaxWidth(),
+                isError = emailError != null,
+                errorText = emailError,
+                modifier = Modifier.fillMaxWidth()
             )
 
             TextField(
                 value = password,
-                onValueChange = { password = it },
+                onValueChange = {
+                    password = it
+                    passwordError = null
+                },
                 label = "Password",
                 isPassword = true,
-                modifier = Modifier.fillMaxWidth(),
+                isError = passwordError != null,
+                errorText = passwordError,
+                modifier = Modifier.fillMaxWidth()
             )
 
             TextField(
                 value = confirmPassword,
-                onValueChange = { confirmPassword = it },
+                onValueChange = {
+                    confirmPassword = it
+                    confirmPasswordError = null
+                },
                 label = "Confirmar password",
                 isPassword = true,
-                modifier = Modifier.fillMaxWidth(),
+                isError = confirmPasswordError != null,
+                errorText = confirmPasswordError,
+                modifier = Modifier.fillMaxWidth()
             )
 
+            Spacer(modifier = Modifier.height(12.dp))
 
             Button(
                 text = "Crear cuenta",
                 isLoading = isLoading,
                 onClick = {
-                    onRegister(
-                        UserRegister(
-                            userName,
-                            email,
-                            password,
-                            confirmPassword,
-                            imageUser = null
+                    var valid = true
+
+                    if (userName.isBlank()) {
+                        userNameError = "El usuario es obligatorio"
+                        valid = false
+                    }
+
+                    if (email.isBlank()) {
+                        emailError = "El email es obligatorio"
+                        valid = false
+                    }
+
+                    if (password.isBlank()) {
+                        passwordError = "La contraseña es obligatoria"
+                        valid = false
+                    }
+
+                    if (confirmPassword.isBlank()) {
+                        confirmPasswordError = "Confirma la contraseña"
+                        valid = false
+                    } else if (password != confirmPassword) {
+                        confirmPasswordError = "Las contraseñas no coinciden"
+                        valid = false
+                    }
+
+                    if (valid) {
+                        onRegister(
+                            UserRegister(
+                                userName = userName,
+                                email = email,
+                                password = password,
+                                confirmPassword = confirmPassword,
+                                imageUser = null
+                            )
                         )
-                    )
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -110,16 +161,9 @@ fun RegisterForm(
                     .clickable { onGoToLogin() }
                     .padding(top = 6.dp)
             )
-
-            errorMessage?.let {
-                Text(
-                    text = it,
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
         }
     }
 }
+
 
 

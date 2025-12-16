@@ -22,6 +22,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.movilecibershield.data.local.TokenCache.token
+import com.example.movilecibershield.data.local.TokenDataStore
 import com.example.movilecibershield.navigation.Routes
 import com.example.movilecibershield.ui.components.AppBottomBar
 import com.example.movilecibershield.ui.components.ProductCard
@@ -36,8 +38,8 @@ fun HomeScreen(
     viewModel: ProductViewModel,
     cartViewModel: CartViewModel,
     navController: NavController,
-    token: String?
-) {
+    tokenDataStore: TokenDataStore
+    ) {
     val products = viewModel.products
     val isLoading = viewModel.isLoading
     val error = viewModel.errorMessage
@@ -64,7 +66,7 @@ fun HomeScreen(
             AppBottomBar(
                 navController = navController,
                 currentRoute = currentRoute,
-                token = token
+                tokenDataStore = tokenDataStore
             )
         }
     ) { innerPadding ->

@@ -1,6 +1,7 @@
 package com.example.movilecibershield.data.remote
 
 import com.example.movilecibershield.data.remote.api.AuthApiService
+import com.example.movilecibershield.data.remote.api.product.LocationApiService
 import com.example.movilecibershield.data.remote.api.product.ProductApiService
 import com.example.movilecibershield.data.remote.api.product.UserApiService
 import com.example.movilecibershield.data.remote.interceptor.AuthInterceptor
@@ -53,4 +54,8 @@ object ConfigApi {
         retrofit.create(CheckoutService::class.java)
     }
 
+
+    val locationApiService: LocationApiService by lazy{
+        retrofit.create(LocationApiService::class.java)
+    }
 }
