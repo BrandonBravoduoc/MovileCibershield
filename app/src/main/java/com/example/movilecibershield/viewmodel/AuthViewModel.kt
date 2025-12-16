@@ -48,6 +48,8 @@ class AuthViewModel(
             result.data?.let {
                 authResponse = it
                 tokenDataStore.saveToken(it.token)
+                // ✅ CORRECCIÓN: Se accede al ID a través del objeto anidado 'user'.
+                tokenDataStore.saveUserId(it.user.id)
             }
             result.error?.let {
                 errorMessage = it
@@ -80,6 +82,8 @@ class AuthViewModel(
             loginResult.data?.let {
                 authResponse = it
                 tokenDataStore.saveToken(it.token)
+                // ✅ CORRECCIÓN: Se accede al ID a través del objeto anidado 'user'.
+                tokenDataStore.saveUserId(it.user.id)
             }
 
             loginResult.error?.let {

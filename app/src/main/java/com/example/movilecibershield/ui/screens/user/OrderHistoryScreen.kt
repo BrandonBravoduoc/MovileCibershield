@@ -14,13 +14,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -40,9 +34,8 @@ fun OrderHistoryScreen(
     val loading by viewModel.loading.collectAsState()
     var selectedOrder by remember { mutableStateOf<OrderResponse?>(null) }
 
-    LaunchedEffect(Unit) {
-        viewModel.loadOrders()
-    }
+    // ✅ CORRECCIÓN: Se elimina la llamada a `loadOrders()`.
+    // La carga ahora se inicia desde la pantalla de perfil para evitar condiciones de carrera.
 
     selectedOrder?.let {
         OrderDetailDialog(
@@ -69,7 +62,7 @@ fun OrderHistoryScreen(
                 .padding(padding)
                 .padding(16.dp)
         ) {
-            if (loading) {
+            if (loading && orders.isEmpty()) { // Muestra el indicador solo si está cargando y no hay órdenes antiguas que mostrar.
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             } else if (orders.isEmpty()) {
                 Text("No tienes pedidos aún.", modifier = Modifier.align(Alignment.Center))

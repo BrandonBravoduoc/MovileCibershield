@@ -4,8 +4,8 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
-
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -18,13 +18,16 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
 class TokenDataStore(context: Context) {
 
     private val dataStore = context.dataStore
-    private val TOKEN_KEY = stringPreferencesKey("auth_token")
 
-    val tokenFlow: Flow<String?> = dataStore.data
-        .map { preferences -> preferences[TOKEN_KEY] }
+    companion object {
+        private val TOKEN_KEY = stringPreferencesKey("auth_token")
+        private val USER_ID_KEY = longPreferencesKey("user_id")
+    }
 
     fun getToken(): Flow<String?> {
-        return tokenFlow
+        return dataStore.data.map { preferences ->
+            preferences[TOKEN_KEY]
+        }
     }
 
     suspend fun saveToken(token: String) {
@@ -35,7 +38,18 @@ class TokenDataStore(context: Context) {
         dataStore.edit { it.remove(TOKEN_KEY) }
     }
 
-    suspend fun getTokenOnce(): String? {
-        return dataStore.data.first()[TOKEN_KEY]
+    // Funciones para el ID del usuario
+    fun getUserId(): Flow<Long?> {
+        return dataStore.data.map { preferences ->
+            preferences[USER_ID_KEY]
+        }
+    }
+
+    suspend fun saveUserId(userId: Long) {
+        dataStore.edit { it[USER_ID_KEY] = userId }
+    }
+
+    suspend fun clearUserId() {
+        dataStore.edit { it.remove(USER_ID_KEY) }
     }
 }

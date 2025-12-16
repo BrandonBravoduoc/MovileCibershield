@@ -40,12 +40,14 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 val tokenDataStore = remember { TokenDataStore(applicationContext) }
 
+                // -------- REPOSITORIES --------
                 val authRepository = remember { AuthRepository(authApiService = ConfigApi.authApiService) }
                 val productRepository = remember { ProductRepository(productApiService = ConfigApi.productApiService) }
                 val orderRepository = remember { OrderRepository(orderApiService = ConfigApi.orderApiService) }
                 val userRepository = remember { UserRepository(api = ConfigApi.userApiService) }
                 val locationRepository = remember { LocationRepository(api = ConfigApi.locationApiService) }
 
+                // -------- VIEWMODELS --------
                 val cartViewModel: CartViewModel = viewModel()
 
                 val authViewModel: AuthViewModel = viewModel(
@@ -57,7 +59,11 @@ class MainActivity : ComponentActivity() {
                 )
 
                 val userViewModel: UserViewModel = viewModel(
-                    factory = UserViewModelFactory(repository = userRepository, orderRepository = orderRepository)
+                    factory = UserViewModelFactory(
+                        repository = userRepository,
+                        orderRepository = orderRepository,
+                        tokenDataStore = tokenDataStore // ✅ CORRECCIÓN: Se pasa el TokenDataStore.
+                    )
                 )
 
                 val contactEditViewModel: ContactEditViewModel = viewModel(
@@ -68,6 +74,7 @@ class MainActivity : ComponentActivity() {
                     factory = CheckoutViewModelFactory(repository = orderRepository, cartViewModel = cartViewModel)
                 )
 
+                // -------- UI --------
                 Surface(modifier = Modifier.fillMaxSize()) {
                     AppNavGraph(
                         navController = navController,

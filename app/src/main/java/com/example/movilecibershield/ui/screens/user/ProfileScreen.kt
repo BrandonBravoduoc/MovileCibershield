@@ -5,32 +5,11 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,6 +20,7 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.movilecibershield.data.utils.uriToMultipart
 import com.example.movilecibershield.navigation.Routes
+import com.example.movilecibershield.ui.components.CreateContactCard
 import com.example.movilecibershield.ui.components.EditContactCard
 import com.example.movilecibershield.viewmodel.ContactEditViewModel
 import com.example.movilecibershield.viewmodel.UserViewModel
@@ -57,6 +37,7 @@ fun ProfileScreen(
     val error by viewModel.error.collectAsState()
 
     var editMode by remember { mutableStateOf(false) }
+    var createMode by remember { mutableStateOf(false) } // Nuevo estado para el modo creación
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
 
     val context = LocalContext.current
@@ -111,6 +92,7 @@ fun ProfileScreen(
                             .padding(16.dp)
                     ) {
 
+                        // FOTO PERFIL
                         Image(
                             painter = rememberAsyncImagePainter(
                                 selectedImageUri ?: user.imageUser
@@ -134,6 +116,7 @@ fun ProfileScreen(
 
                         Spacer(modifier = Modifier.height(12.dp))
 
+                        // CARD PRINCIPAL
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(16.dp)
@@ -148,61 +131,77 @@ fun ProfileScreen(
 
                                 Divider()
 
-                                if (!editMode) {
+                                if (user.contact != null) {
+                                    // --- MODO VISTA / EDICIÓN ---
+                                    if (!editMode) {
+                                        Text("Nombre: ${user.contact.name} ${user.contact.lastName}")
+                                        Text("Teléfono: ${user.contact.phone}")
+                                        Text("Dirección: ${user.contact.addressInfo}")
 
-                                    user.contact?.let { contact ->
-                                        Text("Nombre: ${contact.name} ${contact.lastName}")
-                                        Text("Teléfono: ${contact.phone}")
-                                        Text("Dirección: ${contact.addressInfo}")
-                                    }
-
-                                    Button(
-                                        onClick = { editMode = true },
-                                        modifier = Modifier.fillMaxWidth()
-                                    ) {
-                                        Text("Editar contacto")
-                                    }
-
-                                    Button(
-                                        onClick = { navController.navigate(Routes.ORDER_HISTORY) },
-                                        modifier = Modifier.fillMaxWidth()
-                                    ) {
-                                        Text("Historial de compras")
-                                    }
-
-                                } else {
-
-                                    user.contact?.let { contact ->
+                                        Button(
+                                            onClick = { editMode = true },
+                                            modifier = Modifier.fillMaxWidth()
+                                        ) {
+                                            Text("Editar contacto")
+                                        }
+                                    } else {
                                         EditContactCard(
                                             viewModel = contactEditViewModel,
-                                            contact = contact,
+                                            contact = user.contact,
                                             onSuccess = {
                                                 editMode = false
                                                 viewModel.loadProfile()
                                             }
                                         )
+                                        OutlinedButton(
+                                            onClick = { editMode = false },
+                                            modifier = Modifier.fillMaxWidth()
+                                        ) {
+                                            Text("Cancelar")
+                                        }
                                     }
-
-                                    OutlinedButton(
-                                        onClick = { editMode = false },
-                                        modifier = Modifier.fillMaxWidth()
-                                    ) {
-                                        Text("Cancelar")
+                                } else {
+                                    // --- MODO CREACIÓN ---
+                                    if (!createMode) {
+                                        Text("Aún no tienes información de contacto.")
+                                        Button(
+                                            onClick = { createMode = true },
+                                            modifier = Modifier.fillMaxWidth()
+                                        ) {
+                                            Text("Agregar Contacto")
+                                        }
+                                    } else {
+                                        CreateContactCard(
+                                            userViewModel = viewModel,
+                                            contactViewModel = contactEditViewModel,
+                                            onSuccess = {
+                                                createMode = false
+                                                viewModel.loadProfile()
+                                            }
+                                        )
+                                        OutlinedButton(
+                                            onClick = { createMode = false },
+                                            modifier = Modifier.fillMaxWidth()
+                                        ) {
+                                            Text("Cancelar")
+                                        }
                                     }
                                 }
 
+                                Button(
+                                    onClick = { navController.navigate(Routes.ORDER_HISTORY) },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text("Historial de compras")
+                                }
+
+                                // GUARDAR FOTO
                                 if (selectedImageUri != null) {
                                     Button(
                                         onClick = {
-                                            val imagePart =
-                                                uriToMultipart(context, selectedImageUri!!)
-
-                                            viewModel.updateUser(
-                                                userName = null,
-                                                email = null,
-                                                imageUser = imagePart,
-                                            )
-
+                                            val imagePart = uriToMultipart(context, selectedImageUri!!)
+                                            // ✅ CORRECCIÓN: Se usan los nombres de parámetros correctos (newUserName, newEmail).
+                                            viewModel.updateUser(newUserName = null, newEmail = null, imageUser = imagePart)
                                             selectedImageUri = null
                                         },
                                         modifier = Modifier.fillMaxWidth()

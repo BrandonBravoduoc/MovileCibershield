@@ -2,19 +2,22 @@ package com.example.movilecibershield.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.movilecibershield.data.local.TokenDataStore
 import com.example.movilecibershield.data.model.order.OrderResponse
 import com.example.movilecibershield.data.model.user.*
 import com.example.movilecibershield.data.repository.OrderRepository
 import com.example.movilecibershield.data.repository.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 
 class UserViewModel(
     private val repo: UserRepository,
-    private val orderRepository: OrderRepository
+    private val orderRepository: OrderRepository,
+    private val tokenDataStore: TokenDataStore
 ) : ViewModel() {
 
     private val _profile = MutableStateFlow<UserProfile?>(null)
@@ -30,28 +33,35 @@ class UserViewModel(
     val error: StateFlow<String?> = _error
 
     fun loadProfile() {
-        _loading.value = true
-        _error.value = null
-
         viewModelScope.launch {
-            val result = repo.getMyProfile()
-            _loading.value = false
-
-            result.data?.let {
-                _profile.value = it
-            } ?: run {
-                _error.value = result.error
+            _loading.value = true
+            try {
+                val profileResult = repo.getMyProfile()
+                profileResult.data?.let {
+                    _profile.value = it
+                    // Una vez que tenemos el perfil, obtenemos el ID de usuario y cargamos las órdenes.
+                    val userId = tokenDataStore.getUserId().first()
+                    if (userId != null) {
+                        loadOrders(userId)
+                    } else {
+                        _error.value = "No se pudo verificar el ID del usuario para cargar las órdenes."
+                    }
+                } ?: run {
+                    _error.value = profileResult.error
+                }
+            } finally {
+                _loading.value = false
             }
         }
     }
 
-    fun loadOrders() {
+    private fun loadOrders(userId: Long) {
         viewModelScope.launch {
-            val result = orderRepository.getAllOrders()
-            result.data?.let {
-                _orders.value = it
+            val ordersResult = orderRepository.getAllOrders()
+            ordersResult.data?.let {
+                _orders.value = it.filter { order -> order.user.id == userId }
             } ?: run {
-                _error.value = result.error
+                _error.value = ordersResult.error
             }
         }
     }
@@ -79,12 +89,12 @@ class UserViewModel(
     }
 
     fun updateUser(
-        userName: RequestBody?,
-        email: RequestBody?,
+        newUserName: RequestBody?,
+        newEmail: RequestBody?,
         imageUser: MultipartBody.Part?
     ) {
         viewModelScope.launch {
-            val result = repo.updateUser(userName, email, imageUser)
+            val result = repo.updateUser(newUserName, newEmail, imageUser)
             if (result.data != null) {
                 loadProfile()
             } else {
