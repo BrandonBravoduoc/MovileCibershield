@@ -1,53 +1,64 @@
 package com.example.movilecibershield.data.repository
 
 import com.example.movilecibershield.data.model.order.OrderCreate
+import com.example.movilecibershield.data.model.order.OrderResponse
+import com.example.movilecibershield.data.model.order.PaymentMethodResponse
+import com.example.movilecibershield.data.model.order.ShippingMethodResponse
 import com.example.movilecibershield.data.remote.api.order.OrderApiService
+import retrofit2.HttpException
+import java.io.IOException
 
 class OrderRepository(private val orderApiService: OrderApiService) {
 
-    suspend fun getAllOrders() = try {
-        val response = orderApiService.getAllOrders()
-        if (response.isSuccessful) {
+    suspend fun getAllOrders(): RepoResult<List<OrderResponse>> {
+        return try {
+            val response = orderApiService.getAllOrders()
             RepoResult(data = response.body())
-        } else {
-            RepoResult(error = response.message())
+        } catch (e: HttpException) {
+            RepoResult(error = e.message())
+        } catch (e: IOException) {
+            RepoResult(error = "Sin conexión a internet")
+        } catch (e: Exception) {
+            RepoResult(error = "Error inesperado al cargar las órdenes")
         }
-    } catch (e: Exception) {
-        RepoResult(error = e.message ?: "Error desconocido")
     }
 
-    suspend fun createOrder(orderCreate: OrderCreate) = try {
-        val response = orderApiService.createOrder(orderCreate)
-        if (response.isSuccessful) {
+    suspend fun createOrder(orderCreate: OrderCreate): RepoResult<OrderResponse> {
+        return try {
+            val response = orderApiService.createOrder(orderCreate)
             RepoResult(data = response.body())
-        } else {
-            RepoResult(error = response.message())
+        } catch (e: HttpException) {
+            RepoResult(error = e.message())
+        } catch (e: IOException) {
+            RepoResult(error = "Sin conexión a internet")
+        } catch (e: Exception) {
+            RepoResult(error = "Error inesperado al crear la orden")
         }
-    } catch (e: Exception) {
-        RepoResult(error = e.message ?: "Error desconocido")
     }
 
-    suspend fun getAllPaymentMethods() = try {
-        val response = orderApiService.getAllPaymentMethods()
-        if (response.isSuccessful) {
+    suspend fun getAllPaymentMethods(): RepoResult<List<PaymentMethodResponse>> {
+        return try {
+            val response = orderApiService.getAllPaymentMethods()
             RepoResult(data = response.body())
-        } else {
-            RepoResult(error = response.message())
+        } catch (e: HttpException) {
+            RepoResult(error = e.message())
+        } catch (e: IOException) {
+            RepoResult(error = "Sin conexión a internet")
+        } catch (e: Exception) {
+            RepoResult(error = "Error inesperado al cargar los métodos de pago")
         }
-    } catch (e: Exception) {
-        RepoResult(error = e.message ?: "Error desconocido")
     }
 
-
-    suspend fun getAllShippingMethods() = try {
-        val response = orderApiService.getAllShippingMethods()
-        if (response.isSuccessful) {
+    suspend fun getAllShippingMethods(): RepoResult<List<ShippingMethodResponse>> {
+        return try {
+            val response = orderApiService.getAllShippingMethods()
             RepoResult(data = response.body())
-        } else {
-            RepoResult(error = response.message())
+        } catch (e: HttpException) {
+            RepoResult(error = e.message())
+        } catch (e: IOException) {
+            RepoResult(error = "Sin conexión a internet")
+        } catch (e: Exception) {
+            RepoResult(error = "Error inesperado al cargar los métodos de envío")
         }
-    } catch (e: Exception) {
-        RepoResult(error = e.message ?: "Error desconocido")
     }
-
 }

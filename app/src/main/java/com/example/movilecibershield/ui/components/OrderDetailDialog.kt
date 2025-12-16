@@ -4,11 +4,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.movilecibershield.data.model.order.OrderResponse
 
@@ -21,14 +25,19 @@ fun OrderDetailDialog(
         onDismissRequest = onDismiss,
         title = { Text("Detalles de la orden #${order.orderNumber}") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                // ✅ CORRECCIÓN: Se usa una Card para cada producto, mejorando la legibilidad.
                 order.details.forEach { detail ->
-                    Row(
+                    Card(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                     ) {
-                        Text("${detail.product.productName} - ${detail.quantity} x $${detail.unitPrice}")
-                        Text("$${detail.subtotal}")
+                        Column(modifier = Modifier.padding(12.dp)) {
+                            Text(detail.product.productName, fontWeight = FontWeight.Bold)
+                            Text("Cantidad: ${detail.quantity}")
+                            Text("Precio Unitario: $${detail.unitPrice}")
+                            Text("Subtotal: $${detail.subtotal}", fontWeight = FontWeight.SemiBold)
+                        }
                     }
                 }
             }

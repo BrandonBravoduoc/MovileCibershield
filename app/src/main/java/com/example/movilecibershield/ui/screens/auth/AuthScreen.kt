@@ -18,10 +18,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.movilecibershield.data.model.auth.LoginRequest
 import com.example.movilecibershield.navigation.Routes
 import com.example.movilecibershield.viewmodel.AuthViewModel
-
-
 
 @Composable
 fun AuthScreen(
@@ -82,6 +81,7 @@ fun AuthScreen(
                             LoginForm(
                                 isLoading = viewModel.isLoading,
                                 errorMessage = viewModel.errorMessage,
+                                // ✅ CORRECCIÓN FINAL: Se pasa la referencia a la función directamente.
                                 onLogin = viewModel::login,
                                 onGoToRegister = viewModel::switchToRegister,
                                 onCancel = {

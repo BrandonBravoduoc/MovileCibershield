@@ -9,6 +9,8 @@ import com.example.movilecibershield.data.model.user.UserResponse
 import com.example.movilecibershield.data.remote.api.product.UserApiService
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import retrofit2.HttpException
+import java.io.IOException
 
 class UserRepository(
     private val api: UserApiService
@@ -17,35 +19,39 @@ class UserRepository(
     suspend fun getMyProfile(): RepoResult<UserProfile> {
         return try {
             val response = api.getMyProfile()
-            if (response.isSuccessful) {
-                RepoResult(data = response.body())
-            } else {
-                RepoResult(error = response.errorBody()?.string())
-            }
+            RepoResult(data = response.body())
+        } catch (e: HttpException) {
+            RepoResult(error = e.message())
+        } catch (e: IOException) {
+            RepoResult(error = "Sin conexión a internet")
         } catch (e: Exception) {
-            RepoResult(error = e.message)
+            RepoResult(error = "Error inesperado al obtener el perfil")
         }
     }
 
     suspend fun createContact(dto: ContactCreateWithAddress): RepoResult<ContactResponse> {
         return try {
             val response = api.createContact(dto)
-            if (response.isSuccessful) {
-                RepoResult(data = response.body())
-            } else RepoResult(error = response.errorBody()?.string())
+            RepoResult(data = response.body())
+        } catch (e: HttpException) {
+            RepoResult(error = e.message())
+        } catch (e: IOException) {
+            RepoResult(error = "Sin conexión a internet")
         } catch (e: Exception) {
-            RepoResult(error = e.message)
+            RepoResult(error = "Error inesperado al crear el contacto")
         }
     }
 
     suspend fun updateContact(dto: ContactUpdateWithAddress): RepoResult<ContactResponse> {
         return try {
             val response = api.updateContact(dto)
-            if (response.isSuccessful) {
-                RepoResult(data = response.body())
-            } else RepoResult(error = response.errorBody()?.string())
+            RepoResult(data = response.body())
+        } catch (e: HttpException) {
+            RepoResult(error = e.message())
+        } catch (e: IOException) {
+            RepoResult(error = "Sin conexión a internet")
         } catch (e: Exception) {
-            RepoResult(error = e.message)
+            RepoResult(error = "Error inesperado al actualizar el contacto")
         }
     }
 
@@ -56,34 +62,39 @@ class UserRepository(
     ): RepoResult<UserResponse> {
         return try {
             val response = api.updateCurrentUser(newUserName, newEmail, imageUser)
-            if (response.isSuccessful) {
-                RepoResult(data = response.body())
-            } else RepoResult(error = response.errorBody()?.string())
+            RepoResult(data = response.body())
+        } catch (e: HttpException) {
+            RepoResult(error = e.message())
+        } catch (e: IOException) {
+            RepoResult(error = "Sin conexión a internet")
         } catch (e: Exception) {
-            RepoResult(error = e.message)
+            RepoResult(error = "Error inesperado al actualizar el usuario")
         }
     }
 
-    suspend fun changePassword(dto: ChangePassword): RepoResult<String> {
+    suspend fun changePassword(dto: ChangePassword): RepoResult<Map<String, String>> {
         return try {
             val response = api.changePassword(dto)
-            if (response.isSuccessful) {
-                val msg = response.body()?.get("message") ?: "Contraseña actualizada"
-                RepoResult(data = msg)
-            } else RepoResult(error = response.errorBody()?.string())
+            RepoResult(data = response.body())
+        } catch (e: HttpException) {
+            RepoResult(error = e.message())
+        } catch (e: IOException) {
+            RepoResult(error = "Sin conexión a internet")
         } catch (e: Exception) {
-            RepoResult(error = e.message)
+            RepoResult(error = "Error inesperado al cambiar la contraseña")
         }
     }
 
     suspend fun deleteUser(id: Long): RepoResult<Int> {
         return try {
             val response = api.deleteUser(id)
-            if (response.isSuccessful) {
-                RepoResult(data = 200)
-            } else RepoResult(error = response.errorBody()?.string())
+            RepoResult(data = response.body())
+        } catch (e: HttpException) {
+            RepoResult(error = e.message())
+        } catch (e: IOException) {
+            RepoResult(error = "Sin conexión a internet")
         } catch (e: Exception) {
-            RepoResult(error = e.message)
+            RepoResult(error = "Error inesperado al eliminar el usuario")
         }
     }
 }

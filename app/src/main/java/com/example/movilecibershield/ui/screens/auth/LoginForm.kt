@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.movilecibershield.data.model.auth.LoginRequest
 import com.example.movilecibershield.ui.components.Button
 import com.example.movilecibershield.ui.components.TextField
 
@@ -31,7 +32,7 @@ import com.example.movilecibershield.ui.components.TextField
 fun LoginForm(
     isLoading: Boolean,
     errorMessage: String?,
-    onLogin: (String, String) -> Unit,
+    onLogin: (LoginRequest) -> Unit, // ✅ CORRECCIÓN: Ahora espera un LoginRequest
     onGoToRegister: () -> Unit,
     onCancel: () -> Unit
 ) {
@@ -103,7 +104,8 @@ fun LoginForm(
                     }
 
                     if (valid) {
-                        onLogin(email, password)
+                        // ✅ CORRECCIÓN: Se crea y envía el objeto LoginRequest.
+                        onLogin(LoginRequest(email = email, password = password))
                     }
                 },
                 modifier = Modifier

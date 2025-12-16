@@ -6,12 +6,9 @@ import com.example.movilecibershield.data.model.auth.LoginRequest
 import com.example.movilecibershield.data.model.user.UserRegister
 import com.example.movilecibershield.data.model.user.UserResponse
 import com.example.movilecibershield.data.remote.api.AuthApiService
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import org.json.JSONObject
 import retrofit2.HttpException
 import java.io.IOException
 
@@ -19,37 +16,16 @@ class AuthRepository(
     private val authApiService: AuthApiService
 ) {
 
-    suspend fun login(
-        email: String,
-        password: String
-    ): RepoResult<AuthResponse> = withContext(Dispatchers.IO) {
-
-        try {
-            val response = authApiService.login(
-                LoginRequest(
-                    email = email,
-                    password = password
-                )
-            )
+    suspend fun login(loginRequest: LoginRequest): RepoResult<AuthResponse> {
+        return try {
+            val response = authApiService.login(loginRequest)
             TokenCache.token = response.token
             RepoResult(data = response)
         } catch (e: HttpException) {
-            val errorBody = e.response()?.errorBody()?.string()
-
-            val message = if (!errorBody.isNullOrBlank()) {
-                try {
-                    JSONObject(errorBody).optString("error", "Error del servidor")
-                } catch (_: Exception) {
-                    "Error del servidor"
-                }
-            } else {
-                "Error del servidor"
-            }
-            RepoResult(error = message)
+            RepoResult(error = e.message())
         } catch (e: IOException) {
             RepoResult(error = "Sin conexión a internet")
-
-        } catch (_: Exception) {
+        } catch (e: Exception) {
             RepoResult(error = "Error inesperado")
         }
     }
@@ -57,9 +33,8 @@ class AuthRepository(
     suspend fun register(
         user: UserRegister,
         imagePart: MultipartBody.Part? = null
-    ): RepoResult<UserResponse> = withContext(Dispatchers.IO) {
-
-        try {
+    ): RepoResult<UserResponse> {
+        return try {
             val response = authApiService.register(
                 userName = user.userName.toRequestBody("text/plain".toMediaTypeOrNull()),
                 email = user.email.toRequestBody("text/plain".toMediaTypeOrNull()),
@@ -68,20 +43,11 @@ class AuthRepository(
                 imageUser = imagePart
             )
             RepoResult(data = response)
-
         } catch (e: HttpException) {
-            val errorBody = e.response()?.errorBody()?.string()
-            val message = try {
-                JSONObject(errorBody ?: "").optString("error", "Error del servidor")
-            } catch (_: Exception) {
-                "Error del servidor"
-            }
-            RepoResult(error = message)
-
+            RepoResult(error = e.message())
         } catch (e: IOException) {
             RepoResult(error = "Sin conexión a internet")
-
-        } catch (_: Exception) {
+        } catch (e: Exception) {
             RepoResult(error = "Error inesperado")
         }
     }

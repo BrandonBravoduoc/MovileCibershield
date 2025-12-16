@@ -2,19 +2,34 @@ package com.example.movilecibershield.data.repository
 
 import com.example.movilecibershield.data.model.product.ProductResponse
 import com.example.movilecibershield.data.remote.api.product.ProductApiService
+import retrofit2.HttpException
+import java.io.IOException
 
 class ProductRepository(private val productApiService: ProductApiService) {
 
     suspend fun getProducts(): RepoResult<List<ProductResponse>> {
         return try {
             val response = productApiService.getProduct()
-            if (response.isSuccessful) {
-                RepoResult(data = response.body())
-            } else {
-                RepoResult(error = response.errorBody()?.string())
-            }
+            RepoResult(data = response.body())
+        } catch (e: HttpException) {
+            RepoResult(error = e.message())
+        } catch (e: IOException) {
+            RepoResult(error = "Sin conexión a internet")
         } catch (e: Exception) {
-            RepoResult(error = e.message)
+            RepoResult(error = "Error inesperado al cargar los productos")
+        }
+    }
+
+    suspend fun getProductById(id: Long): RepoResult<ProductResponse> {
+        return try {
+            val response = productApiService.getProductById(id)
+            RepoResult(data = response.body())
+        } catch (e: HttpException) {
+            RepoResult(error = e.message())
+        } catch (e: IOException) {
+            RepoResult(error = "Sin conexión a internet")
+        } catch (e: Exception) {
+            RepoResult(error = "Error inesperado al cargar el producto")
         }
     }
 }

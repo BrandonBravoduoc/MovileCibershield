@@ -7,11 +7,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.movilecibershield.data.local.TokenDataStore
 import com.example.movilecibershield.data.model.auth.AuthResponse
+import com.example.movilecibershield.data.model.auth.LoginRequest
 import com.example.movilecibershield.data.model.user.UserRegister
 import com.example.movilecibershield.data.repository.AuthRepository
 import com.example.movilecibershield.ui.screens.auth.AuthMode
 import kotlinx.coroutines.launch
-
 
 class AuthViewModel(
     private val authRepository: AuthRepository,
@@ -37,12 +37,12 @@ class AuthViewModel(
         clearError()
     }
 
-    fun login(email: String, password: String) {
+    fun login(loginRequest: LoginRequest) {
         isLoading = true
         errorMessage = null
 
         viewModelScope.launch {
-            val result = authRepository.login(email, password)
+            val result = authRepository.login(loginRequest)
 
             isLoading = false
             result.data?.let {
@@ -69,8 +69,10 @@ class AuthViewModel(
             }
 
             val loginResult = authRepository.login(
-                userRegister.email,
-                userRegister.password
+                LoginRequest(
+                    email = userRegister.email,
+                    password = userRegister.password
+                )
             )
 
             isLoading = false
@@ -94,5 +96,3 @@ class AuthViewModel(
         authResponse = null
     }
 }
-
-
