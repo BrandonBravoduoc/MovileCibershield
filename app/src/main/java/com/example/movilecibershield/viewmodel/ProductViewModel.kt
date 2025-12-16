@@ -8,7 +8,7 @@ import com.example.movilecibershield.data.repository.ProductRepository
 import kotlinx.coroutines.launch
 
 class ProductViewModel(
-    private val productRepository: ProductRepository
+    private val productRepository: ProductRepository? = null
 ) : ViewModel() {
 
     private var allProducts: List<Product> = emptyList()
@@ -31,16 +31,19 @@ class ProductViewModel(
             isLoading = true
             errorMessage = null
 
-            val result = productRepository.getProducts()
+            val result = productRepository?.getProducts()
+
             isLoading = false
 
-            result.data?.let { productList ->
-                allProducts = productList
-                products = productList
-            }
+            result?.let { res ->
+                res.data?.let { productList ->
+                    allProducts = productList
+                    products = productList
+                }
 
-            result.error?.let { error ->
-                errorMessage = error
+                res.error?.let { error ->
+                    errorMessage = error
+                }
             }
         }
     }
