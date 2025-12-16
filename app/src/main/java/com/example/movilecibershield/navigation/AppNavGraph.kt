@@ -1,6 +1,6 @@
 package com.example.movilecibershield.navigation
 
-import ProductViewModel
+import com.example.movilecibershield.viewmodel.ProductViewModel
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue

@@ -1,6 +1,5 @@
 package com.example.movilecibershield.ui.screens
 
-import ProductViewModel
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,6 +27,7 @@ import com.example.movilecibershield.ui.components.AppBottomBar
 import com.example.movilecibershield.ui.components.ProductCard
 import com.example.movilecibershield.ui.components.SearchBar
 import com.example.movilecibershield.ui.viewmodel.CartViewModel
+import com.example.movilecibershield.viewmodel.ProductViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)

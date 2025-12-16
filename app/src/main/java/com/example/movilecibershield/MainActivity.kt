@@ -1,6 +1,5 @@
 package com.example.movilecibershield
 
-import ProductViewModel
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -23,6 +22,7 @@ import com.example.movilecibershield.ui.viewmodel.CheckoutViewModel
 import com.example.movilecibershield.ui.viewmodel.CheckoutViewModelFactory
 import com.example.movilecibershield.viewmodel.AuthViewModel
 import com.example.movilecibershield.viewmodel.AuthViewModelFactory
+import com.example.movilecibershield.viewmodel.ProductViewModel
 import com.example.movilecibershield.viewmodel.ProductViewModelFactory
 import com.example.movilecibershield.viewmodel.UserViewModel
 import com.example.movilecibershield.viewmodel.UserViewModelFactory
