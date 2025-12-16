@@ -13,11 +13,14 @@ import androidx.navigation.compose.rememberNavController
 import com.example.movilecibershield.data.local.TokenDataStore
 import com.example.movilecibershield.data.remote.ConfigApi
 import com.example.movilecibershield.data.repository.AuthRepository
+import com.example.movilecibershield.data.repository.CheckoutRepository
 import com.example.movilecibershield.data.repository.ProductRepository
 import com.example.movilecibershield.data.repository.UserRepository
 import com.example.movilecibershield.navigation.AppNavGraph
 import com.example.movilecibershield.ui.theme.MovileCibershieldTheme
 import com.example.movilecibershield.ui.viewmodel.CartViewModel
+import com.example.movilecibershield.ui.viewmodel.CheckoutViewModel
+import com.example.movilecibershield.ui.viewmodel.CheckoutViewModelFactory
 import com.example.movilecibershield.viewmodel.AuthViewModel
 import com.example.movilecibershield.viewmodel.AuthViewModelFactory
 import com.example.movilecibershield.viewmodel.ProductViewModelFactory
@@ -34,6 +37,9 @@ class MainActivity : ComponentActivity() {
 
                 val navController = rememberNavController()
                 val tokenDataStore = remember { TokenDataStore(applicationContext) }
+
+                // -------- CART --------
+                val cartViewModel: CartViewModel = viewModel()
 
                 // -------- AUTH --------
                 val authRepository = remember {
@@ -73,8 +79,19 @@ class MainActivity : ComponentActivity() {
                     )
                 )
 
-                // -------- CART --------
-                val cartViewModel: CartViewModel = viewModel()
+                 // -------- CHECKOUT --------
+                val checkoutRepository = remember {
+                    CheckoutRepository(
+                        checkoutService = ConfigApi.checkoutService
+                    )
+                }
+
+                val checkoutViewModel: CheckoutViewModel = viewModel(
+                    factory = CheckoutViewModelFactory(
+                        repository = checkoutRepository,
+                        cartViewModel = cartViewModel
+                    )
+                )
 
                 // -------- UI --------
                 Surface(modifier = Modifier.fillMaxSize()) {
@@ -84,6 +101,7 @@ class MainActivity : ComponentActivity() {
                         productViewModel = productViewModel,
                         userViewModel = userViewModel,
                         cartViewModel = cartViewModel,
+                        checkoutViewModel = checkoutViewModel,
                         tokenDataStore = tokenDataStore
                     )
                 }

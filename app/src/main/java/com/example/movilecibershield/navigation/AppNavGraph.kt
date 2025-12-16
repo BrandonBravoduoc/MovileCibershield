@@ -9,11 +9,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.movilecibershield.data.local.TokenDataStore
 import com.example.movilecibershield.ui.screens.CartScreen
+import com.example.movilecibershield.ui.screens.CheckoutScreen
 import com.example.movilecibershield.ui.screens.HomeScreen
 import com.example.movilecibershield.ui.screens.SplashScreen
 import com.example.movilecibershield.ui.screens.auth.AuthScreen
 import com.example.movilecibershield.ui.screens.user.ProfileScreen
 import com.example.movilecibershield.ui.viewmodel.CartViewModel
+import com.example.movilecibershield.ui.viewmodel.CheckoutViewModel
 import com.example.movilecibershield.viewmodel.AuthViewModel
 import com.example.movilecibershield.viewmodel.UserViewModel
 
@@ -25,6 +27,7 @@ fun AppNavGraph(
     userViewModel: UserViewModel,
     productViewModel: ProductViewModel,
     cartViewModel: CartViewModel,
+    checkoutViewModel: CheckoutViewModel,
     tokenDataStore: TokenDataStore
 ) {
     val token by tokenDataStore.getToken.collectAsState(initial = null)
@@ -64,6 +67,13 @@ fun AppNavGraph(
                 viewModel = cartViewModel,
                 navController = navController,
                 token = token
+            )
+        }
+
+        composable(Routes.CHECKOUT) {
+            CheckoutScreen(
+                navController = navController,
+                viewModel = checkoutViewModel
             )
         }
     }
