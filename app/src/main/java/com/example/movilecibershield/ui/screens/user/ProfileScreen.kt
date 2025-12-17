@@ -207,7 +207,7 @@ fun ProfileScreen(
                                 Text("Información de Envío", style = MaterialTheme.typography.titleMedium)
                                 Divider()
 
-                                if (user.contact != null) {
+                                if (user.contact != null && !(user.contact.name.isNullOrBlank() && user.contact.lastName.isNullOrBlank())) {
                                     if (!editMode) {
                                         Text("Nombre: ${user.contact.name} ${user.contact.lastName}")
                                         Text("Teléfono: ${user.contact.phone}")

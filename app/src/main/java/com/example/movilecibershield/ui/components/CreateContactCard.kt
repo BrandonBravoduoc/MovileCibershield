@@ -57,8 +57,7 @@ fun CreateContactCard(
     ) {
         Column(
             modifier = Modifier
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
+                .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text("Crear nuevo contacto", style = androidx.compose.material3.MaterialTheme.typography.titleMedium)
