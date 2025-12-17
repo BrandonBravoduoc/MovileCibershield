@@ -41,8 +41,8 @@ import com.example.movilecibershield.ui.components.OrderRow
 import com.example.movilecibershield.ui.screens.HomeScreen
 import com.example.movilecibershield.ui.screens.SplashScreen
 import com.example.movilecibershield.ui.screens.auth.AuthScreen
+import com.example.movilecibershield.ui.screens.order.CartScreen
 import com.example.movilecibershield.ui.screens.order.CheckoutScreen
-import com.example.movilecibershield.ui.screens.orderimport.CartScreen
 import com.example.movilecibershield.ui.screens.user.OrderHistoryScreen
 import com.example.movilecibershield.ui.screens.user.ProfileScreen
 import com.example.movilecibershield.ui.viewmodel.CartViewModel
@@ -92,7 +92,7 @@ fun AppNavGraph(
                 viewModel = userViewModel,
                 contactEditViewModel = contactEditViewModel,
                 navController = navController,
-                tokenDataStore = tokenDataStore, // <--- AÑADE ESTA LÍNEA
+                tokenDataStore = tokenDataStore,
                 onLogout = {
                     scope.launch {
                         tokenDataStore.clearToken()
@@ -137,12 +137,10 @@ fun AppNavGraph(
             val loading by viewModel.loading.collectAsState()
             var selectedOrder by remember { mutableStateOf<OrderResponse?>(null) }
 
-            // 1. CARGA AUTOMÁTICA
             LaunchedEffect(Unit) {
                 viewModel.refreshOrders()
             }
 
-            // 2. GRADIENTE DE FONDO
             val backgroundBrush = remember {
                 Brush.verticalGradient(
                     colors = listOf(
@@ -152,8 +150,6 @@ fun AppNavGraph(
                 )
             }
             val topBarColor = Color(0xFF111827)
-
-            // Diálogo de detalles
             selectedOrder?.let {
                 OrderDetailDialog(
                     order = it,
@@ -187,24 +183,18 @@ fun AppNavGraph(
                         .padding(padding)
                         .padding(16.dp)
                 ) {
-                    // --- LÓGICA DE VISUALIZACIÓN EXCLUSIVA ---
-                    // Usamos if/else if/else para que SOLO UNA cosa sea visible a la vez.
-
                     if (loading) {
-                        // CASO 1: CARGANDO
                         CircularProgressIndicator(
                             modifier = Modifier.align(Alignment.Center),
                             color = Color.White
                         )
                     } else if (orders.isEmpty()) {
-                        // CASO 2: VACÍO (Solo si NO está cargando)
                         Text(
                             "No tienes pedidos aún.",
                             modifier = Modifier.align(Alignment.Center),
                             color = Color.White
                         )
                     } else {
-                        // CASO 3: LISTA (Solo si NO carga y NO está vacío)
                         LazyColumn(modifier = Modifier.fillMaxSize()) {
                             items(orders) {
                                 OrderRow(
@@ -214,7 +204,6 @@ fun AppNavGraph(
                             }
                         }
                     }
-                    // ------------------------------------------
                 }
             }
         }

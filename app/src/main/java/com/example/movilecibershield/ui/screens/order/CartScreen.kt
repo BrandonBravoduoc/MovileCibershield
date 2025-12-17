@@ -1,4 +1,4 @@
-package com.example.movilecibershield.ui.screens.orderimport
+package com.example.movilecibershield.ui.screens.order
 
 import android.widget.Toast
 
@@ -68,7 +68,6 @@ fun CartScreen(
     val status by viewModel.purchaseStatus.collectAsState()
     val context = LocalContext.current
 
-    // 1. Definimos el gradiente (Igual que en Auth/Profile)
     val backgroundBrush = remember {
         Brush.verticalGradient(
             colors = listOf(
@@ -77,7 +76,7 @@ fun CartScreen(
             )
         )
     }
-    // Color para la barra superior
+
     val topBarColor = Color(0xFF111827)
 
     LaunchedEffect(status) {
@@ -89,9 +88,9 @@ fun CartScreen(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Mi Carrito", color = Color.White) }, // Texto blanco
+                title = { Text("Mi Carrito", color = Color.White) },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = topBarColor // Fondo oscuro integrado
+                    containerColor = topBarColor
                 )
             )
         },
@@ -138,7 +137,6 @@ fun CartScreen(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
                         elevation = CardDefaults.cardElevation(8.dp),
-                        // Cambiamos el fondo a un gris oscuro para que combine, pero se distinga
                         colors = CardDefaults.cardColors(
                             containerColor = Color(0xFF1F2937)
                         )
@@ -160,7 +158,7 @@ fun CartScreen(
                                     text = "$ ${viewModel.getTotal()}",
                                     style = MaterialTheme.typography.titleLarge,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF4ADE80) // Verde claro para resaltar precio
+                                    color = Color(0xFF4ADE80)
                                 )
                             }
 

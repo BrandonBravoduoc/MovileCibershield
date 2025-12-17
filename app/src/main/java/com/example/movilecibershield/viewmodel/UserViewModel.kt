@@ -76,11 +76,10 @@ class  UserViewModel(
             } catch (e: Exception) {
                 _error.value = e.message
             } finally {
-                _loading.value = false // Desactiva el indicador de carga
+                _loading.value = false
             }
         }
     }
-    // ----------------------------------------
 
     private fun loadOrders(userId: Long) {
         viewModelScope.launch {
