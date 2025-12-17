@@ -4,7 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.movilecibershield.data.local.TokenDataStore
 import com.example.movilecibershield.data.model.order.OrderResponse
-import com.example.movilecibershield.data.model.user.*
+import com.example.movilecibershield.data.model.user.ChangePassword
+import com.example.movilecibershield.data.model.user.ContactCreateWithAddress
+import com.example.movilecibershield.data.model.user.ContactUpdateWithAddress
+import com.example.movilecibershield.data.model.user.UserProfile
 import com.example.movilecibershield.data.repository.OrderRepository
 import com.example.movilecibershield.data.repository.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +17,7 @@ import kotlinx.coroutines.launch
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 
-class UserViewModel(
+class  UserViewModel(
     private val repo: UserRepository,
     private val orderRepository: OrderRepository,
     private val tokenDataStore: TokenDataStore
@@ -53,6 +56,31 @@ class UserViewModel(
             }
         }
     }
+
+
+    fun refreshOrders() {
+        viewModelScope.launch {
+            _loading.value = true
+            try {
+                val userId = tokenDataStore.getUserId().first()
+                if (userId != null) {
+                    val ordersResult = orderRepository.getAllOrders()
+                    ordersResult.data?.let { allOrders ->
+                        _orders.value = allOrders.filter { order -> order.user.id == userId }
+                    } ?: run {
+                        _error.value = ordersResult.error
+                    }
+                } else {
+                    _error.value = "No se pudo identificar al usuario."
+                }
+            } catch (e: Exception) {
+                _error.value = e.message
+            } finally {
+                _loading.value = false // Desactiva el indicador de carga
+            }
+        }
+    }
+    // ----------------------------------------
 
     private fun loadOrders(userId: Long) {
         viewModelScope.launch {

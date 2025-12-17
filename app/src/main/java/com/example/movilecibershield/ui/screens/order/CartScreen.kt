@@ -1,6 +1,7 @@
-package com.example.movilecibershield.ui.screens.order
+package com.example.movilecibershield.ui.screens.orderimport
 
 import android.widget.Toast
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,13 +33,16 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -64,6 +68,18 @@ fun CartScreen(
     val status by viewModel.purchaseStatus.collectAsState()
     val context = LocalContext.current
 
+    // 1. Definimos el gradiente (Igual que en Auth/Profile)
+    val backgroundBrush = remember {
+        Brush.verticalGradient(
+            colors = listOf(
+                Color(0xFF111827), // Gris azulado oscuro
+                Color(0xFF020617)  // Casi negro
+            )
+        )
+    }
+    // Color para la barra superior
+    val topBarColor = Color(0xFF111827)
+
     LaunchedEffect(status) {
         if (status == "SUCCESS") {
             Toast.makeText(context, "¡Compra realizada con éxito!", Toast.LENGTH_LONG).show()
@@ -72,7 +88,12 @@ fun CartScreen(
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(title = { Text("Mi Carrito") })
+            CenterAlignedTopAppBar(
+                title = { Text("Mi Carrito", color = Color.White) }, // Texto blanco
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = topBarColor // Fondo oscuro integrado
+                )
+            )
         },
         bottomBar = {
             AppBottomBar(
@@ -85,11 +106,12 @@ fun CartScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .background(backgroundBrush)
                 .padding(padding)
         ) {
             if (cartItems.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Tu carrito está vacío")
+                    Text("Tu carrito está vacío", color = Color.White) // Texto blanco
                 }
             } else {
                 Column(
@@ -113,10 +135,13 @@ fun CartScreen(
                     }
 
                     Card(
-                        modifier = Modifier
-                            .fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-                        elevation = CardDefaults.cardElevation(8.dp)
+                        elevation = CardDefaults.cardElevation(8.dp),
+                        // Cambiamos el fondo a un gris oscuro para que combine, pero se distinga
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color(0xFF1F2937)
+                        )
                     ) {
                         Column(
                             modifier = Modifier.padding(16.dp)
@@ -128,16 +153,17 @@ fun CartScreen(
                                 Text(
                                     text = "Total:",
                                     style = MaterialTheme.typography.titleLarge,
-                                    fontWeight = FontWeight.Bold
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White // Texto blanco
                                 )
                                 Text(
                                     text = "$ ${viewModel.getTotal()}",
                                     style = MaterialTheme.typography.titleLarge,
                                     fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.primary
+                                    color = Color(0xFF4ADE80) // Verde claro para resaltar precio
                                 )
                             }
-                            
+
                             Spacer(modifier = Modifier.height(16.dp))
 
                             Button(
@@ -148,7 +174,7 @@ fun CartScreen(
                             ) {
                                 if (status == "LOADING") {
                                     CircularProgressIndicator(
-                                        color = Color.White, 
+                                        color = Color.White,
                                         modifier = Modifier.size(24.dp)
                                     )
                                 } else {
@@ -209,7 +235,7 @@ fun CartItemCard(
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f)
                     )
-                    
+
                     IconButton(
                         onClick = onDelete,
                         modifier = Modifier.size(24.dp)
@@ -245,25 +271,25 @@ fun CartItemCard(
                             modifier = Modifier.size(32.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Remove, 
+                                imageVector = Icons.Default.Remove,
                                 contentDescription = "Restar",
                                 modifier = Modifier.size(16.dp)
                             )
                         }
-                        
+
                         Text(
                             text = "${item.quantity}",
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(horizontal = 8.dp)
                         )
-                        
+
                         IconButton(
                             onClick = onAdd,
                             modifier = Modifier.size(32.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Add, 
+                                imageVector = Icons.Default.Add,
                                 contentDescription = "Sumar",
                                 modifier = Modifier.size(16.dp)
                             )

@@ -40,19 +40,23 @@ fun ProductCard(
 ) {
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         modifier = modifier
             .fillMaxWidth()
+
             .clickable { }
     ) {
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(160.dp)
+                    .height(140.dp)
+                    .padding(8.dp),
+                contentAlignment = Alignment.Center
             ) {
                 AsyncImage(
                     model = product.foto.ifBlank { "https://via.placeholder.com/150" },
@@ -62,9 +66,11 @@ fun ProductCard(
                 )
             }
 
+
             Column(
-                modifier = Modifier.padding(12.dp)
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
             ) {
+
                 product.marca?.let { marca ->
                     Text(
                         text = marca.uppercase(),
@@ -80,24 +86,13 @@ fun ProductCard(
                 Text(
                     text = product.nombre,
                     style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Normal,
+                    fontWeight = FontWeight.Medium,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     minLines = 2,
                     color = Color.Black.copy(alpha = 0.8f)
                 )
 
-                Spacer(modifier = Modifier.height(4.dp))
-
-                product.categoria?.let { categoria ->
-                    Text(
-                        text = categoria,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.Gray,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -107,15 +102,15 @@ fun ProductCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "$ ${product.precio.toInt()}",
-                        style = MaterialTheme.typography.titleLarge,
+                        text = "$${product.precio.toInt()}",
+                        style = MaterialTheme.typography.titleMedium,
                         color = Color.Black,
-                        fontWeight = FontWeight.Normal
+                        fontWeight = FontWeight.Bold
                     )
 
                     FilledIconButton(
                         onClick = { onAddToCart(product) },
-                        modifier = Modifier.size(36.dp),
+                        modifier = Modifier.size(32.dp),
                         colors = IconButtonDefaults.filledIconButtonColors(
                             containerColor = MaterialTheme.colorScheme.primary,
                             contentColor = MaterialTheme.colorScheme.onPrimary
@@ -123,8 +118,8 @@ fun ProductCard(
                     ) {
                         Icon(
                             imageVector = Icons.Default.AddShoppingCart,
-                            contentDescription = "Agregar al carrito",
-                            modifier = Modifier.size(20.dp)
+                            contentDescription = "Agregar",
+                            modifier = Modifier.size(18.dp)
                         )
                     }
                 }

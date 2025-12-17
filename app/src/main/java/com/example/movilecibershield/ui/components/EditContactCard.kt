@@ -43,46 +43,43 @@ fun EditContactCard(
     contact: ContactResponse,
     onSuccess: () -> Unit
 ) {
-    val context = LocalContext.current // Necesario para los Toasts
+    val context = LocalContext.current
 
-    var name by remember { mutableStateOf(contact.name) }
-    var lastName by remember { mutableStateOf(contact.lastName) }
-    var phone by remember { mutableStateOf(contact.phone) }
-    val lastCommaIndex = contact.addressInfo.lastIndexOf(',')
+    var name by remember { mutableStateOf("") }
+    var lastName by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf("") }
+    var street by remember { mutableStateOf("") }
+    var number by remember { mutableStateOf("") }
 
-    var street by remember(contact) {
-        mutableStateOf(
-            if (lastCommaIndex != -1) {
-                contact.addressInfo.substring(0, lastCommaIndex).trim()
-            } else {
-                contact.addressInfo
-            }
-        )
+    LaunchedEffect(contact) {
+        name = contact.name
+        lastName = contact.lastName
+        phone = contact.phone
+
+        val parts = contact.addressInfo.split(",").map { it.trim() }
+
+        if (parts.size >= 2) {
+            street = parts[0]
+            number = parts[1]
+        } else {
+            street = contact.addressInfo
+            number = ""
+        }
     }
-
-    var number by remember(contact) {
-        mutableStateOf(
-            if (lastCommaIndex != -1) {
-                contact.addressInfo.substring(lastCommaIndex + 1).trim()
-            } else {
-                ""
-            }
-        )
-    }
-    // --------------------------------
-
     var regionExpanded by remember { mutableStateOf(false) }
     var communeExpanded by remember { mutableStateOf(false) }
+
     val status = viewModel.updateStatus
 
     LaunchedEffect(Unit) {
         viewModel.loadRegions()
     }
+
     LaunchedEffect(status) {
         if (status == "SUCCESS") {
-            Toast.makeText(context, "Contacto actualizado correctamente", Toast.LENGTH_SHORT).show()
-            viewModel.clearStatus() // Limpiamos para la próxima vez
-            onSuccess() // Ahora sí cerramos y recargamos
+            Toast.makeText(context, "Contacto actualizado", Toast.LENGTH_SHORT).show()
+            viewModel.clearStatus()
+            onSuccess()
         } else if (status == "ERROR") {
             Toast.makeText(context, "Error al actualizar", Toast.LENGTH_SHORT).show()
             viewModel.clearStatus()
@@ -102,48 +99,29 @@ fun EditContactCard(
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-
-                Text(
-                    text = "Editar contacto",
-                    style = MaterialTheme.typography.titleMedium
-                )
+                Text(text = "Editar contacto", style = MaterialTheme.typography.titleMedium)
 
                 OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Nombre") },
-                    modifier = Modifier.fillMaxWidth()
+                    value = name, onValueChange = { name = it },
+                    label = { Text("Nombre") }, modifier = Modifier.fillMaxWidth()
                 )
-
                 OutlinedTextField(
-                    value = lastName,
-                    onValueChange = { lastName = it },
-                    label = { Text("Apellido") },
-                    modifier = Modifier.fillMaxWidth()
+                    value = lastName, onValueChange = { lastName = it },
+                    label = { Text("Apellido") }, modifier = Modifier.fillMaxWidth()
                 )
-
                 OutlinedTextField(
-                    value = phone,
-                    onValueChange = { phone = it },
-                    label = { Text("Teléfono") },
-                    modifier = Modifier.fillMaxWidth()
+                    value = phone, onValueChange = { phone = it },
+                    label = { Text("Teléfono") }, modifier = Modifier.fillMaxWidth()
                 )
-
                 OutlinedTextField(
-                    value = street,
-                    onValueChange = { street = it },
-                    label = { Text("Calle") },
-                    modifier = Modifier.fillMaxWidth()
+                    value = street, onValueChange = { street = it },
+                    label = { Text("Calle") }, modifier = Modifier.fillMaxWidth()
                 )
-
                 OutlinedTextField(
-                    value = number,
-                    onValueChange = { number = it },
-                    label = { Text("Número") },
-                    modifier = Modifier.fillMaxWidth()
+                    value = number, onValueChange = { number = it },
+                    label = { Text("Número") }, modifier = Modifier.fillMaxWidth()
                 )
 
-                // Selector de Región
                 ExposedDropdownMenuBox(
                     expanded = regionExpanded,
                     onExpandedChange = { regionExpanded = !regionExpanded }
@@ -153,14 +131,9 @@ fun EditContactCard(
                         value = viewModel.selectedRegion?.regionName ?: "",
                         onValueChange = {},
                         label = { Text("Región") },
-                        trailingIcon = {
-                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = regionExpanded)
-                        },
-                        modifier = Modifier
-                            .menuAnchor()
-                            .fillMaxWidth()
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = regionExpanded) },
+                        modifier = Modifier.menuAnchor().fillMaxWidth()
                     )
-
                     ExposedDropdownMenu(
                         expanded = regionExpanded,
                         onDismissRequest = { regionExpanded = false }
@@ -188,14 +161,9 @@ fun EditContactCard(
                         value = viewModel.selectedCommune?.nameCommunity ?: "",
                         onValueChange = {},
                         label = { Text("Comuna") },
-                        trailingIcon = {
-                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = communeExpanded)
-                        },
-                        modifier = Modifier
-                            .menuAnchor()
-                            .fillMaxWidth()
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = communeExpanded) },
+                        modifier = Modifier.menuAnchor().fillMaxWidth()
                     )
-
                     ExposedDropdownMenu(
                         expanded = communeExpanded,
                         onDismissRequest = { communeExpanded = false }
@@ -216,44 +184,29 @@ fun EditContactCard(
 
                 Button(
                     onClick = {
-                        // Validación explícita de la comuna
                         val communeId = viewModel.selectedCommune?.id
                         if (communeId == null) {
-                            Toast.makeText(context, "Debes seleccionar una comuna nuevamente", Toast.LENGTH_LONG).show()
+                            Toast.makeText(context, "Selecciona una comuna", Toast.LENGTH_LONG).show()
                             return@Button
                         }
-
                         viewModel.updateContact(
                             ContactUpdateWithAddress(
-                                id = contact.id,
-                                name = name,
-                                lastName = lastName,
-                                phone = phone,
-                                street = street,
-                                number = number,
-                                communeId = communeId
+                                id = contact.id, name = name, lastName = lastName, phone = phone,
+                                street = street, number = number, communeId = communeId
                             )
                         )
                     },
                     modifier = Modifier.fillMaxWidth(),
                     enabled = status != "LOADING"
                 ) {
-                    if (status == "LOADING") {
-                        CircularProgressIndicator(
-                            modifier = Modifier
-                                .height(24.dp)
-                                .padding(end = 8.dp),
-                            color = MaterialTheme.colorScheme.onPrimary
-                        )
-                        Text("Guardando...")
-                    } else {
-                        Text("Guardar cambios")
-                    }
+                    Text(if (status == "LOADING") "Guardando..." else "Guardar cambios")
                 }
             }
 
             if (status == "LOADING") {
-                CircularProgressIndicator()
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center)
+                )
             }
         }
     }

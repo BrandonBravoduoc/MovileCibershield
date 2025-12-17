@@ -9,6 +9,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,15 +20,22 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -54,6 +62,7 @@ import com.example.movilecibershield.ui.components.EditContactCard
 import com.example.movilecibershield.viewmodel.ContactEditViewModel
 import com.example.movilecibershield.viewmodel.UserViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     viewModel: UserViewModel,
@@ -95,6 +104,23 @@ fun ProfileScreen(
     }
 
     Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { },
+                actions = {
+                    IconButton(onClick = onLogout) {
+                        Icon(
+                            imageVector = Icons.Default.Logout,
+                            contentDescription = "Cerrar sesión",
+                            tint = Color.White
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent
+                )
+            )
+        },
         bottomBar = {
             AppBottomBar(
                 navController = navController,
@@ -112,7 +138,10 @@ fun ProfileScreen(
             contentAlignment = Alignment.TopCenter
         ) {
             when {
-                loading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                loading -> CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center),
+                    color = Color.White
+                )
 
                 error != null -> Text(
                     text = error ?: "",
@@ -127,9 +156,10 @@ fun ProfileScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(16.dp)
+                            .padding(horizontal = 16.dp)
                             .verticalScroll(scrollState)
                     ) {
+
 
                         Image(
                             painter = rememberAsyncImagePainter(
@@ -137,24 +167,34 @@ fun ProfileScreen(
                             ),
                             contentDescription = "Foto perfil",
                             modifier = Modifier
-                                .size(120.dp)
+                                .size(110.dp)
                                 .clip(CircleShape)
-                                .clickable {
-                                    imagePicker.launch("image/*")
-                                },
+                                .background(Color.Gray)
+                                .clickable { imagePicker.launch("image/*") },
                             contentScale = ContentScale.Crop
                         )
 
                         if (selectedImageUri != null) {
                             Text(
-                                text = "Toca Guardar para aplicar la foto",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Color.White, // Ajustamos color texto por el fondo oscuro
+                                text = "Guardar cambios abajo",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color.LightGray,
                                 modifier = Modifier.padding(top = 8.dp)
                             )
+                        } else {
+                            Text(
+                                text = user.userName,
+                                style = MaterialTheme.typography.headlineSmall,
+                                color = Color.White,
+                                modifier = Modifier.padding(top = 12.dp)
+                            )
+                            Text(
+                                text = user.email,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.Gray,
+                                modifier = Modifier.padding(bottom = 20.dp)
+                            )
                         }
-
-                        Spacer(modifier = Modifier.height(12.dp))
 
                         Card(
                             modifier = Modifier.fillMaxWidth(),
@@ -164,10 +204,7 @@ fun ProfileScreen(
                                 modifier = Modifier.padding(16.dp),
                                 verticalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
-
-                                Text(user.userName, style = MaterialTheme.typography.titleLarge)
-                                Text(user.email)
-
+                                Text("Información de Envío", style = MaterialTheme.typography.titleMedium)
                                 Divider()
 
                                 if (user.contact != null) {
@@ -178,7 +215,10 @@ fun ProfileScreen(
 
                                         Button(
                                             onClick = { editMode = true },
-                                            modifier = Modifier.fillMaxWidth()
+                                            modifier = Modifier.fillMaxWidth(),
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = MaterialTheme.colorScheme.primary
+                                            )
                                         ) {
                                             Text("Editar contacto")
                                         }
@@ -195,7 +235,7 @@ fun ProfileScreen(
                                             onClick = { editMode = false },
                                             modifier = Modifier.fillMaxWidth()
                                         ) {
-                                            Text("Cancelar")
+                                            Text("Cancelar edición")
                                         }
                                     }
                                 } else {
@@ -203,7 +243,10 @@ fun ProfileScreen(
                                         Text("Aún no tienes información de contacto.")
                                         Button(
                                             onClick = { createMode = true },
-                                            modifier = Modifier.fillMaxWidth()
+                                            modifier = Modifier.fillMaxWidth(),
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = MaterialTheme.colorScheme.primary
+                                            )
                                         ) {
                                             Text("Agregar Contacto")
                                         }
@@ -224,38 +267,31 @@ fun ProfileScreen(
                                         }
                                     }
                                 }
-
-                                Button(
-                                    onClick = { navController.navigate(Routes.ORDER_HISTORY) },
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    Text("Historial de compras")
-                                }
-
-                                if (selectedImageUri != null) {
-                                    Button(
-                                        onClick = {
-                                            val imagePart = uriToMultipart(context, selectedImageUri!!)
-                                            viewModel.updateUser(newUserName = null, newEmail = null, imageUser = imagePart)
-                                            selectedImageUri = null
-                                        },
-                                        modifier = Modifier.fillMaxWidth()
-                                    ) {
-                                        Text("Guardar foto")
-                                    }
-                                }
-
-                                Divider(modifier = Modifier.padding(vertical = 8.dp))
-
-                                OutlinedButton(
-                                    onClick = onLogout,
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    Text("Cerrar sesión")
-                                }
                             }
                         }
-                        Spacer(modifier = Modifier.height(20.dp))
+
+                        Spacer(modifier = Modifier.height(24.dp))
+
+
+                        if (selectedImageUri != null) {
+                            Button(
+                                onClick = {
+                                    val imagePart = uriToMultipart(context, selectedImageUri!!)
+                                    viewModel.updateUser(newUserName = null, newEmail = null, imageUser = imagePart)
+                                    selectedImageUri = null
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFF4ADE80) // Verde
+                                )
+                            ) {
+                                Text("Guardar nueva foto", color = Color.Black)
+                            }
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
+
+
+                        Spacer(modifier = Modifier.height(40.dp))
                     }
                 }
             }

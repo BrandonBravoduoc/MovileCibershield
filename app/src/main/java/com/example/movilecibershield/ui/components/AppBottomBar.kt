@@ -1,6 +1,7 @@
 package com.example.movilecibershield.ui.components
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
@@ -15,8 +16,6 @@ import androidx.navigation.NavController
 import com.example.movilecibershield.data.local.TokenDataStore
 import com.example.movilecibershield.navigation.Routes
 
-
-
 @Composable
 fun AppBottomBar(
     navController: NavController,
@@ -28,6 +27,7 @@ fun AppBottomBar(
 
     NavigationBar {
 
+
         if (excludedRoute != Routes.HOME) {
             NavigationBarItem(
                 selected = currentRoute == Routes.HOME,
@@ -37,6 +37,7 @@ fun AppBottomBar(
             )
         }
 
+
         if (excludedRoute != Routes.CART) {
             NavigationBarItem(
                 selected = currentRoute == Routes.CART,
@@ -45,6 +46,16 @@ fun AppBottomBar(
                 label = { Text("Carrito") }
             )
         }
+
+        if (excludedRoute == Routes.PROFILE) {
+            NavigationBarItem(
+                selected = currentRoute == Routes.ORDER_HISTORY,
+                onClick = { navController.navigate(Routes.ORDER_HISTORY) },
+                icon = { Icon(Icons.Default.History, contentDescription = null) },
+                label = { Text("Historial") }
+            )
+        }
+
 
         if (excludedRoute != Routes.PROFILE) {
             NavigationBarItem(
