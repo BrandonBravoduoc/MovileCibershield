@@ -7,9 +7,10 @@ import com.example.movilecibershield.data.model.order.OrderCreate
 import com.example.movilecibershield.data.model.order.PaymentMethodResponse
 import com.example.movilecibershield.data.model.order.ShippingMethodResponse
 import com.example.movilecibershield.data.repository.OrderRepository
+import com.example.movilecibershield.data.utils.UiEvent
 import com.example.movilecibershield.ui.viewmodel.CartViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class CheckoutViewModel(
@@ -18,19 +19,22 @@ class CheckoutViewModel(
 ) : ViewModel() {
 
     private val _paymentMethods = MutableStateFlow<List<PaymentMethodResponse>>(emptyList())
-    val paymentMethods: StateFlow<List<PaymentMethodResponse>> = _paymentMethods
+    val paymentMethods: StateFlow<List<PaymentMethodResponse>> = _paymentMethods.asStateFlow()
 
     private val _shippingMethods = MutableStateFlow<List<ShippingMethodResponse>>(emptyList())
-    val shippingMethods: StateFlow<List<ShippingMethodResponse>> = _shippingMethods
+    val shippingMethods: StateFlow<List<ShippingMethodResponse>> = _shippingMethods.asStateFlow()
 
     private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading
-
-    private val _error = MutableStateFlow<String?>(null)
-    val error: StateFlow<String?> = _error
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
     private val _purchaseStatus = MutableStateFlow<String?>(null)
-    val purchaseStatus: StateFlow<String?> = _purchaseStatus
+    val purchaseStatus: StateFlow<String?> = _purchaseStatus.asStateFlow()
+
+    /* ========================
+       UI EVENTS (Snackbar)
+       ======================== */
+    private val _uiEvent = Channel<UiEvent>(Channel.BUFFERED)
+    val uiEvent = _uiEvent.receiveAsFlow()
 
     init {
         fetchInitialData()
@@ -39,25 +43,30 @@ class CheckoutViewModel(
     private fun fetchInitialData() {
         viewModelScope.launch {
             _isLoading.value = true
-            try {
-                val paymentMethodsResult = repository.getAllPaymentMethods()
-                if (paymentMethodsResult.data != null) {
-                    _paymentMethods.value = paymentMethodsResult.data
-                } else {
-                    _error.value = paymentMethodsResult.error
-                }
 
-                val shippingMethodsResult = repository.getAllShippingMethods()
-                if (shippingMethodsResult.data != null) {
-                    _shippingMethods.value = shippingMethodsResult.data
-                } else {
-                    _error.value = shippingMethodsResult.error
-                }
-            } catch (e: Exception) {
-                _error.value = e.message
-            } finally {
-                _isLoading.value = false
+            val paymentResult = repository.getAllPaymentMethods()
+            paymentResult.data?.let {
+                _paymentMethods.value = it
+            } ?: run {
+                _uiEvent.send(
+                    UiEvent.ShowSnackbar(
+                        paymentResult.error ?: "Error al cargar métodos de pago"
+                    )
+                )
             }
+
+            val shippingResult = repository.getAllShippingMethods()
+            shippingResult.data?.let {
+                _shippingMethods.value = it
+            } ?: run {
+                _uiEvent.send(
+                    UiEvent.ShowSnackbar(
+                        shippingResult.error ?: "Error al cargar métodos de envío"
+                    )
+                )
+            }
+
+            _isLoading.value = false
         }
     }
 
@@ -71,8 +80,9 @@ class CheckoutViewModel(
     ) {
         viewModelScope.launch {
             _purchaseStatus.value = "LOADING"
+
             try {
-                val cartItems = cartViewModel.cartItems.value.map {
+                val items = cartViewModel.cartItems.value.map {
                     CreateItem(
                         productId = it.product.id,
                         quantity = it.quantity,
@@ -92,24 +102,32 @@ class CheckoutViewModel(
                     shippingMethodId = shippingMethod.id.toLong(),
                     total = cartViewModel.getTotal().toString(),
                     cardInfo = cardInfo,
-                    items = cartItems
+                    items = items
                 )
 
                 val result = repository.createOrder(order)
+
                 if (result.data != null) {
                     cartViewModel.confirmPurchase()
                     _purchaseStatus.value = "SUCCESS"
                 } else {
-                    _error.value = result.error
                     _purchaseStatus.value = "ERROR"
+                    _uiEvent.send(
+                        UiEvent.ShowSnackbar(
+                            result.error ?: "Error al procesar la compra"
+                        )
+                    )
                 }
 
             } catch (e: Exception) {
-                _error.value = e.message
                 _purchaseStatus.value = "ERROR"
+                _uiEvent.send(
+                    UiEvent.ShowSnackbar(
+                        e.message ?: "Error inesperado al crear la orden"
+                    )
+                )
             }
         }
-
     }
 
     fun clearStatus() {

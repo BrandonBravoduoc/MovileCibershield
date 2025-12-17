@@ -1,5 +1,6 @@
 package com.example.movilecibershield.ui.screens.order
 
+
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -28,6 +29,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -48,6 +51,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.movilecibershield.data.model.order.PaymentMethodResponse
 import com.example.movilecibershield.data.model.order.ShippingMethodResponse
+import com.example.movilecibershield.data.utils.UiEvent
 import com.example.movilecibershield.navigation.Routes
 import com.example.movilecibershield.viewmodel.CheckoutViewModel
 
@@ -58,11 +62,23 @@ fun CheckoutScreen(
     viewModel: CheckoutViewModel = viewModel()
 ) {
     val context = LocalContext.current
+
     val paymentMethods by viewModel.paymentMethods.collectAsState()
     val shippingMethods by viewModel.shippingMethods.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
-    val error by viewModel.error.collectAsState()
     val purchaseStatus by viewModel.purchaseStatus.collectAsState()
+
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(Unit) {
+        viewModel.uiEvent.collect { event ->
+            when (event) {
+                is UiEvent.ShowSnackbar -> {
+                    snackbarHostState.showSnackbar(event.message)
+                }
+            }
+        }
+    }
 
     var selectedPaymentMethod by remember { mutableStateOf<PaymentMethodResponse?>(null) }
     var selectedShippingMethod by remember { mutableStateOf<ShippingMethodResponse?>(null) }
@@ -76,13 +92,9 @@ fun CheckoutScreen(
 
     val backgroundBrush = remember {
         Brush.verticalGradient(
-            colors = listOf(
-                Color(0xFF111827),
-                Color(0xFF020617)
-            )
+            colors = listOf(Color(0xFF111827), Color(0xFF020617))
         )
     }
-    val topBarColor = Color(0xFF111827)
 
     val textFieldColors = OutlinedTextFieldDefaults.colors(
         focusedTextColor = Color.White,
@@ -91,14 +103,12 @@ fun CheckoutScreen(
         unfocusedBorderColor = Color.Gray,
         focusedLabelColor = MaterialTheme.colorScheme.primary,
         unfocusedLabelColor = Color.Gray,
-        cursorColor = Color.White,
-        focusedTrailingIconColor = Color.White,
-        unfocusedTrailingIconColor = Color.Gray
+        cursorColor = Color.White
     )
 
     LaunchedEffect(purchaseStatus) {
         if (purchaseStatus == "SUCCESS") {
-            Toast.makeText(context, "Gracias por su compra", Toast.LENGTH_LONG).show()
+            snackbarHostState.showSnackbar("Gracias por su compra")
             navController.navigate(Routes.HOME) {
                 popUpTo(Routes.CHECKOUT) { inclusive = true }
             }
@@ -107,11 +117,12 @@ fun CheckoutScreen(
     }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             CenterAlignedTopAppBar(
                 title = { Text("Realizar compra", color = Color.White) },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = topBarColor
+                    containerColor = Color(0xFF111827)
                 )
             )
         }
@@ -124,13 +135,10 @@ fun CheckoutScreen(
                 .padding(padding)
         ) {
             if (isLoading) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = Color.White)
-                }
-            } else if (error != null) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Error: $error", color = MaterialTheme.colorScheme.error)
-                }
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center),
+                    color = Color.White
+                )
             } else {
                 Column(
                     modifier = Modifier
@@ -139,7 +147,7 @@ fun CheckoutScreen(
                         .verticalScroll(rememberScrollState()),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // --- DROPDOWN PAGO ---
+
                     ExposedDropdownMenuBox(
                         expanded = paymentMenuExpanded,
                         onExpandedChange = { paymentMenuExpanded = !paymentMenuExpanded }
@@ -148,9 +156,13 @@ fun CheckoutScreen(
                             value = selectedPaymentMethod?.paymentName ?: "",
                             onValueChange = { },
                             label = { Text("Método de pago") },
-                            modifier = Modifier.fillMaxWidth().menuAnchor(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .menuAnchor(),
                             readOnly = true,
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = paymentMenuExpanded) },
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = paymentMenuExpanded)
+                            },
                             colors = textFieldColors
                         )
                         ExposedDropdownMenu(
@@ -179,10 +191,14 @@ fun CheckoutScreen(
                             value = selectedShippingMethod?.methodName ?: "",
                             onValueChange = { },
                             label = { Text("Método de envío") },
-                            modifier = Modifier.fillMaxWidth().menuAnchor(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .menuAnchor(),
                             readOnly = true,
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = shippingMenuExpanded) },
-                            colors = textFieldColors // Aplicar colores oscuros
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = shippingMenuExpanded)
+                            },
+                            colors = textFieldColors
                         )
                         ExposedDropdownMenu(
                             expanded = shippingMenuExpanded,
@@ -247,7 +263,7 @@ fun CheckoutScreen(
                             onValueChange = { cvv = it },
                             label = { Text("CVV") },
                             modifier = Modifier.weight(1f),
-                            colors = textFieldColors // Aplicar colores oscuros
+                            colors = textFieldColors
                         )
                     }
 
@@ -277,23 +293,53 @@ fun CheckoutScreen(
 
                                 when {
                                     payment == null -> {
-                                        Toast.makeText(context, "Por favor, selecciona un método de pago", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(
+                                            context,
+                                            "Por favor, selecciona un método de pago",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
                                     }
+
                                     shipping == null -> {
-                                        Toast.makeText(context, "Por favor, selecciona un método de envío", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(
+                                            context,
+                                            "Por favor, selecciona un método de envío",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
                                     }
+
                                     cardHolderName.isBlank() -> {
-                                        Toast.makeText(context, "Por favor, ingresa el nombre del titular", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(
+                                            context,
+                                            "Por favor, ingresa el nombre del titular",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
                                     }
+
                                     cardNumber.isBlank() -> {
-                                        Toast.makeText(context, "Por favor, ingresa el número de tarjeta", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(
+                                            context,
+                                            "Por favor, ingresa el número de tarjeta",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
                                     }
+
                                     expiryDate.isBlank() -> {
-                                        Toast.makeText(context, "Por favor, ingresa la fecha de expiración", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(
+                                            context,
+                                            "Por favor, ingresa la fecha de expiración",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
                                     }
+
                                     cvv.isBlank() -> {
-                                        Toast.makeText(context, "Por favor, ingresa el CVV", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(
+                                            context,
+                                            "Por favor, ingresa el CVV",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
                                     }
+
                                     else -> {
                                         viewModel.createOrder(
                                             paymentMethod = payment,
@@ -315,7 +361,10 @@ fun CheckoutScreen(
                             )
                         ) {
                             if (purchaseStatus == "LOADING") {
-                                CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White)
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(24.dp),
+                                    color = Color.White
+                                )
                             } else {
                                 Text("Pagar Ahora", color = Color.White)
                             }
@@ -328,3 +377,4 @@ fun CheckoutScreen(
         }
     }
 }
+

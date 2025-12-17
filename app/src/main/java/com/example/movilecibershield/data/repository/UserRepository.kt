@@ -1,12 +1,9 @@
 package com.example.movilecibershield.data.repository
 
-import com.example.movilecibershield.data.model.user.ChangePassword
-import com.example.movilecibershield.data.model.user.ContactCreateWithAddress
-import com.example.movilecibershield.data.model.user.ContactResponse
-import com.example.movilecibershield.data.model.user.ContactUpdateWithAddress
-import com.example.movilecibershield.data.model.user.UserProfile
-import com.example.movilecibershield.data.model.user.UserResponse
+
+import com.example.movilecibershield.data.model.user.*
 import com.example.movilecibershield.data.remote.api.product.UserApiService
+import com.example.movilecibershield.data.utils.extractErrorMessage
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.HttpException
@@ -21,7 +18,7 @@ class UserRepository(
             val response = api.getMyProfile()
             RepoResult(data = response.body())
         } catch (e: HttpException) {
-            RepoResult(error = e.message())
+            RepoResult(error = extractErrorMessage(e))
         } catch (e: IOException) {
             RepoResult(error = "Sin conexión a internet")
         } catch (e: Exception) {
@@ -34,7 +31,7 @@ class UserRepository(
             val response = api.createContact(dto)
             RepoResult(data = response.body())
         } catch (e: HttpException) {
-            RepoResult(error = e.message())
+            RepoResult(error = extractErrorMessage(e))
         } catch (e: IOException) {
             RepoResult(error = "Sin conexión a internet")
         } catch (e: Exception) {
@@ -47,7 +44,7 @@ class UserRepository(
             val response = api.updateContact(dto)
             RepoResult(data = response.body())
         } catch (e: HttpException) {
-            RepoResult(error = e.message())
+            RepoResult(error = extractErrorMessage(e))
         } catch (e: IOException) {
             RepoResult(error = "Sin conexión a internet")
         } catch (e: Exception) {
@@ -64,7 +61,7 @@ class UserRepository(
             val response = api.updateCurrentUser(newUserName, newEmail, imageUser)
             RepoResult(data = response.body())
         } catch (e: HttpException) {
-            RepoResult(error = e.message())
+            RepoResult(error = extractErrorMessage(e))
         } catch (e: IOException) {
             RepoResult(error = "Sin conexión a internet")
         } catch (e: Exception) {
@@ -77,7 +74,7 @@ class UserRepository(
             val response = api.changePassword(dto)
             RepoResult(data = response.body())
         } catch (e: HttpException) {
-            RepoResult(error = e.message())
+            RepoResult(error = extractErrorMessage(e))
         } catch (e: IOException) {
             RepoResult(error = "Sin conexión a internet")
         } catch (e: Exception) {
@@ -90,7 +87,7 @@ class UserRepository(
             val response = api.deleteUser(id)
             RepoResult(data = response.body())
         } catch (e: HttpException) {
-            RepoResult(error = e.message())
+            RepoResult(error = extractErrorMessage(e))
         } catch (e: IOException) {
             RepoResult(error = "Sin conexión a internet")
         } catch (e: Exception) {
@@ -98,3 +95,4 @@ class UserRepository(
         }
     }
 }
+

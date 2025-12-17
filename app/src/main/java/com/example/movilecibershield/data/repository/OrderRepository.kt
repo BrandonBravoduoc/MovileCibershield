@@ -5,17 +5,20 @@ import com.example.movilecibershield.data.model.order.OrderResponse
 import com.example.movilecibershield.data.model.order.PaymentMethodResponse
 import com.example.movilecibershield.data.model.order.ShippingMethodResponse
 import com.example.movilecibershield.data.remote.api.order.OrderApiService
+import com.example.movilecibershield.data.utils.extractErrorMessage
 import retrofit2.HttpException
 import java.io.IOException
 
-class OrderRepository(private val orderApiService: OrderApiService) {
+class OrderRepository(
+    private val orderApiService: OrderApiService
+) {
 
     suspend fun getAllOrders(): RepoResult<List<OrderResponse>> {
         return try {
             val response = orderApiService.getAllOrders()
             RepoResult(data = response.body())
         } catch (e: HttpException) {
-            RepoResult(error = e.message())
+            RepoResult(error = extractErrorMessage(e))
         } catch (e: IOException) {
             RepoResult(error = "Sin conexión a internet")
         } catch (e: Exception) {
@@ -28,7 +31,7 @@ class OrderRepository(private val orderApiService: OrderApiService) {
             val response = orderApiService.createOrder(orderCreate)
             RepoResult(data = response.body())
         } catch (e: HttpException) {
-            RepoResult(error = e.message())
+            RepoResult(error = extractErrorMessage(e))
         } catch (e: IOException) {
             RepoResult(error = "Sin conexión a internet")
         } catch (e: Exception) {
@@ -41,7 +44,7 @@ class OrderRepository(private val orderApiService: OrderApiService) {
             val response = orderApiService.getAllPaymentMethods()
             RepoResult(data = response.body())
         } catch (e: HttpException) {
-            RepoResult(error = e.message())
+            RepoResult(error = extractErrorMessage(e))
         } catch (e: IOException) {
             RepoResult(error = "Sin conexión a internet")
         } catch (e: Exception) {
@@ -54,7 +57,7 @@ class OrderRepository(private val orderApiService: OrderApiService) {
             val response = orderApiService.getAllShippingMethods()
             RepoResult(data = response.body())
         } catch (e: HttpException) {
-            RepoResult(error = e.message())
+            RepoResult(error = extractErrorMessage(e))
         } catch (e: IOException) {
             RepoResult(error = "Sin conexión a internet")
         } catch (e: Exception) {

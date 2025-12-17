@@ -1,15 +1,13 @@
 package com.example.movilecibershield.viewmodel
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.movilecibershield.data.model.user.CommuneCombo
-import com.example.movilecibershield.data.model.user.ContactUpdateWithAddress
-import com.example.movilecibershield.data.model.user.RegionCombo
+import com.example.movilecibershield.data.model.user.*
 import com.example.movilecibershield.data.repository.LocationRepository
 import com.example.movilecibershield.data.repository.UserRepository
+import com.example.movilecibershield.data.utils.UiEvent
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 class ContactEditViewModel(
@@ -17,30 +15,34 @@ class ContactEditViewModel(
     private val userRepository: UserRepository
 ) : ViewModel() {
 
-    var regions by mutableStateOf<List<RegionCombo>>(emptyList())
+    var regions = emptyList<RegionCombo>()
         private set
 
-    var communes by mutableStateOf<List<CommuneCombo>>(emptyList())
+    var communes = emptyList<CommuneCombo>()
         private set
 
-    var selectedRegion by mutableStateOf<RegionCombo?>(null)
-    var selectedCommune by mutableStateOf<CommuneCombo?>(null)
-    var updateStatus by mutableStateOf<String?>(null)
+    var selectedRegion: RegionCombo? = null
+    var selectedCommune: CommuneCombo? = null
+
+    var updateStatus: String? = null
         private set
+
+    private val _uiEvent = Channel<UiEvent>()
+    val uiEvent = _uiEvent.receiveAsFlow()
 
     fun loadRegions() {
         viewModelScope.launch {
-            locationRepository.getRegions().data?.let {
-                regions = it
-            }
+            val result = locationRepository.getRegions()
+            result.data?.let { regions = it }
+            result.error?.let { _uiEvent.send(UiEvent.ShowSnackbar(it)) }
         }
     }
 
     fun loadCommunes(regionId: Long) {
         viewModelScope.launch {
-            locationRepository.getCommunes(regionId).data?.let {
-                communes = it
-            }
+            val result = locationRepository.getCommunes(regionId)
+            result.data?.let { communes = it }
+            result.error?.let { _uiEvent.send(UiEvent.ShowSnackbar(it)) }
         }
     }
 
@@ -48,10 +50,12 @@ class ContactEditViewModel(
         viewModelScope.launch {
             updateStatus = "LOADING"
             val result = userRepository.updateContact(dto)
+
             if (result.data != null) {
                 updateStatus = "SUCCESS"
             } else {
                 updateStatus = "ERROR"
+                _uiEvent.send(UiEvent.ShowSnackbar(result.error ?: "Error al actualizar contacto"))
             }
         }
     }

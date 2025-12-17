@@ -10,7 +10,10 @@ import com.example.movilecibershield.data.model.auth.AuthResponse
 import com.example.movilecibershield.data.model.auth.LoginRequest
 import com.example.movilecibershield.data.model.user.UserRegister
 import com.example.movilecibershield.data.repository.AuthRepository
+import com.example.movilecibershield.data.utils.UiEvent
 import com.example.movilecibershield.ui.screens.auth.AuthMode
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 
 class AuthViewModel(
@@ -20,52 +23,53 @@ class AuthViewModel(
 
     var authMode by mutableStateOf(AuthMode.LOGIN)
         private set
+
     var isLoading by mutableStateOf(false)
         private set
-    var errorMessage by mutableStateOf<String?>(null)
-        private set
+
     var authResponse by mutableStateOf<AuthResponse?>(null)
         private set
 
+    private val _uiEvent = MutableSharedFlow<UiEvent>()
+    val uiEvent: SharedFlow<UiEvent> = _uiEvent
+
+
     fun switchToLogin() {
         authMode = AuthMode.LOGIN
-        clearError()
     }
 
     fun switchToRegister() {
         authMode = AuthMode.REGISTER
-        clearError()
     }
 
     fun login(loginRequest: LoginRequest) {
         isLoading = true
-        errorMessage = null
 
         viewModelScope.launch {
             val result = authRepository.login(loginRequest)
-
             isLoading = false
+
             result.data?.let {
                 authResponse = it
                 tokenDataStore.saveToken(it.token)
                 tokenDataStore.saveUserId(it.user.id)
             }
+
             result.error?.let {
-                errorMessage = it
+                _uiEvent.emit(UiEvent.ShowSnackbar(it))
             }
         }
     }
 
     fun register(userRegister: UserRegister) {
         isLoading = true
-        errorMessage = null
 
         viewModelScope.launch {
             val registerResult = authRepository.register(userRegister)
 
-            registerResult.error?.let {
+            if (registerResult.error != null) {
                 isLoading = false
-                errorMessage = it
+                _uiEvent.emit(UiEvent.ShowSnackbar(registerResult.error))
                 return@launch
             }
 
@@ -85,13 +89,9 @@ class AuthViewModel(
             }
 
             loginResult.error?.let {
-                errorMessage = it
+                _uiEvent.emit(UiEvent.ShowSnackbar(it))
             }
         }
-    }
-
-    fun clearError() {
-        errorMessage = null
     }
 
     fun clearResults() {

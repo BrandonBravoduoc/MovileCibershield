@@ -10,87 +10,94 @@ import com.example.movilecibershield.data.model.user.ContactUpdateWithAddress
 import com.example.movilecibershield.data.model.user.UserProfile
 import com.example.movilecibershield.data.repository.OrderRepository
 import com.example.movilecibershield.data.repository.UserRepository
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.first
+import com.example.movilecibershield.data.utils.UiEvent
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 
-class  UserViewModel(
+class UserViewModel(
     private val repo: UserRepository,
     private val orderRepository: OrderRepository,
     private val tokenDataStore: TokenDataStore
 ) : ViewModel() {
 
+
     private val _profile = MutableStateFlow<UserProfile?>(null)
-    val profile: StateFlow<UserProfile?> = _profile
+    val profile: StateFlow<UserProfile?> = _profile.asStateFlow()
 
     private val _orders = MutableStateFlow<List<OrderResponse>>(emptyList())
-    val orders: StateFlow<List<OrderResponse>> = _orders
+    val orders: StateFlow<List<OrderResponse>> = _orders.asStateFlow()
 
     private val _loading = MutableStateFlow(false)
-    val loading: StateFlow<Boolean> = _loading
+    val loading: StateFlow<Boolean> = _loading.asStateFlow()
 
-    private val _error = MutableStateFlow<String?>(null)
-    val error: StateFlow<String?> = _error
+
+    private val _uiEvent = Channel<UiEvent>(Channel.BUFFERED)
+    val uiEvent = _uiEvent.receiveAsFlow()
+
 
     fun loadProfile() {
         viewModelScope.launch {
             _loading.value = true
-            try {
-                val profileResult = repo.getMyProfile()
-                profileResult.data?.let {
-                    _profile.value = it
-                    val userId = tokenDataStore.getUserId().first()
-                    if (userId != null) {
-                        loadOrders(userId)
-                    } else {
-                        _error.value = "No se pudo verificar el ID del usuario para cargar las órdenes."
-                    }
-                } ?: run {
-                    _error.value = profileResult.error
-                }
-            } finally {
-                _loading.value = false
-            }
-        }
-    }
 
+            val result = repo.getMyProfile()
+            result.data?.let { profile ->
+                _profile.value = profile
 
-    fun refreshOrders() {
-        viewModelScope.launch {
-            _loading.value = true
-            try {
                 val userId = tokenDataStore.getUserId().first()
                 if (userId != null) {
-                    val ordersResult = orderRepository.getAllOrders()
-                    ordersResult.data?.let { allOrders ->
-                        _orders.value = allOrders.filter { order -> order.user.id == userId }
-                    } ?: run {
-                        _error.value = ordersResult.error
-                    }
-                } else {
-                    _error.value = "No se pudo identificar al usuario."
+                    loadOrders(userId)
                 }
-            } catch (e: Exception) {
-                _error.value = e.message
-            } finally {
-                _loading.value = false
+            } ?: run {
+                _uiEvent.send(
+                    UiEvent.ShowSnackbar(result.error ?: "Error al cargar el perfil")
+                )
             }
+
+            _loading.value = false
         }
     }
+
 
     private fun loadOrders(userId: Long) {
         viewModelScope.launch {
             val ordersResult = orderRepository.getAllOrders()
-            ordersResult.data?.let {
-                _orders.value = it.filter { order -> order.user.id == userId }
+            ordersResult.data?.let { allOrders ->
+                _orders.value = allOrders.filter { it.user.id == userId }
             } ?: run {
-                _error.value = ordersResult.error
+                _uiEvent.send(
+                    UiEvent.ShowSnackbar(ordersResult.error ?: "Error al cargar órdenes")
+                )
             }
         }
     }
+
+    fun refreshOrders() {
+        viewModelScope.launch {
+            _loading.value = true
+
+            val userId = tokenDataStore.getUserId().first()
+            if (userId == null) {
+                _uiEvent.send(UiEvent.ShowSnackbar("No se pudo identificar al usuario"))
+                _loading.value = false
+                return@launch
+            }
+
+            val ordersResult = orderRepository.getAllOrders()
+            ordersResult.data?.let {
+                _orders.value = it.filter { order -> order.user.id == userId }
+            } ?: run {
+                _uiEvent.send(
+                    UiEvent.ShowSnackbar(ordersResult.error ?: "Error al cargar órdenes")
+                )
+            }
+
+            _loading.value = false
+        }
+    }
+
 
     fun createContact(dto: ContactCreateWithAddress) {
         viewModelScope.launch {
@@ -98,7 +105,9 @@ class  UserViewModel(
             if (result.data != null) {
                 loadProfile()
             } else {
-                _error.value = result.error
+                _uiEvent.send(
+                    UiEvent.ShowSnackbar(result.error ?: "Error al crear contacto")
+                )
             }
         }
     }
@@ -109,10 +118,13 @@ class  UserViewModel(
             if (result.data != null) {
                 loadProfile()
             } else {
-                _error.value = result.error
+                _uiEvent.send(
+                    UiEvent.ShowSnackbar(result.error ?: "Error al actualizar contacto")
+                )
             }
         }
     }
+
 
     fun updateUser(
         newUserName: RequestBody?,
@@ -124,7 +136,9 @@ class  UserViewModel(
             if (result.data != null) {
                 loadProfile()
             } else {
-                _error.value = result.error
+                _uiEvent.send(
+                    UiEvent.ShowSnackbar(result.error ?: "Error al actualizar usuario")
+                )
             }
         }
     }
@@ -133,7 +147,9 @@ class  UserViewModel(
         viewModelScope.launch {
             val result = repo.changePassword(dto)
             if (result.data == null) {
-                _error.value = result.error
+                _uiEvent.send(
+                    UiEvent.ShowSnackbar(result.error ?: "Error al cambiar contraseña")
+                )
             }
         }
     }
@@ -142,7 +158,7 @@ class  UserViewModel(
         viewModelScope.launch {
             val result = repo.deleteUser(id)
             if (result.error != null) {
-                _error.value = result.error
+                _uiEvent.send(UiEvent.ShowSnackbar(result.error))
             }
         }
     }

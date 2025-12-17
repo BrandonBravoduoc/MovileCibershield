@@ -3,6 +3,7 @@ package com.example.movilecibershield.data.repository
 import com.example.movilecibershield.data.model.user.CommuneCombo
 import com.example.movilecibershield.data.model.user.RegionCombo
 import com.example.movilecibershield.data.remote.api.product.LocationApiService
+import com.example.movilecibershield.data.utils.extractErrorMessage
 import retrofit2.HttpException
 import java.io.IOException
 
@@ -15,7 +16,7 @@ class LocationRepository(
             val response = api.getRegions()
             RepoResult(data = response)
         } catch (e: HttpException) {
-            RepoResult(error = e.message())
+            RepoResult(error = extractErrorMessage(e))
         } catch (e: IOException) {
             RepoResult(error = "Sin conexión a internet")
         } catch (e: Exception) {
@@ -28,7 +29,7 @@ class LocationRepository(
             val response = api.getCommunes(regionId)
             RepoResult(data = response)
         } catch (e: HttpException) {
-            RepoResult(error = e.message())
+            RepoResult(error = extractErrorMessage(e))
         } catch (e: IOException) {
             RepoResult(error = "Sin conexión a internet")
         } catch (e: Exception) {

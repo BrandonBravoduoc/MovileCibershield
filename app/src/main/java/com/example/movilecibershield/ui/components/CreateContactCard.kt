@@ -6,16 +6,17 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -26,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.movilecibershield.data.model.user.ContactCreateWithAddress
+import com.example.movilecibershield.data.utils.UiEvent
 import com.example.movilecibershield.viewmodel.ContactEditViewModel
 import com.example.movilecibershield.viewmodel.UserViewModel
 
@@ -36,6 +38,8 @@ fun CreateContactCard(
     contactViewModel: ContactEditViewModel,
     onSuccess: () -> Unit
 ) {
+
+
     var name by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
@@ -44,6 +48,18 @@ fun CreateContactCard(
 
     var regionExpanded by remember { mutableStateOf(false) }
     var communeExpanded by remember { mutableStateOf(false) }
+
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(Unit) {
+        userViewModel.uiEvent.collect { event ->
+            when (event) {
+                is UiEvent.ShowSnackbar -> {
+                    snackbarHostState.showSnackbar(event.message)
+                }
+            }
+        }
+    }
 
     LaunchedEffect(Unit) {
         contactViewModel.loadRegions()
@@ -56,28 +72,34 @@ fun CreateContactCard(
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(
-            modifier = Modifier
-                .padding(16.dp),
+            modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text("Crear nuevo contacto", style = androidx.compose.material3.MaterialTheme.typography.titleMedium)
 
-            OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Nombre") }, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(value = lastName, onValueChange = { lastName = it }, label = { Text("Apellido") }, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(value = phone, onValueChange = { phone = it }, label = { Text("Teléfono") }, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(value = street, onValueChange = { street = it }, label = { Text("Calle") }, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(value = number, onValueChange = { number = it }, label = { Text("Número") }, modifier = Modifier.fillMaxWidth())
+            Text("Crear nuevo contacto", style = MaterialTheme.typography.titleMedium)
 
-            ExposedDropdownMenuBox(expanded = regionExpanded, onExpandedChange = { regionExpanded = !regionExpanded }) {
+            OutlinedTextField(name, { name = it }, label = { Text("Nombre") }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(lastName, { lastName = it }, label = { Text("Apellido") }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(phone, { phone = it }, label = { Text("Teléfono") }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(street, { street = it }, label = { Text("Calle") }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(number, { number = it }, label = { Text("Número") }, modifier = Modifier.fillMaxWidth())
+
+            ExposedDropdownMenuBox(
+                expanded = regionExpanded,
+                onExpandedChange = { regionExpanded = !regionExpanded }
+            ) {
                 OutlinedTextField(
                     readOnly = true,
                     value = contactViewModel.selectedRegion?.regionName ?: "",
                     onValueChange = {},
                     label = { Text("Región") },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = regionExpanded) },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(regionExpanded) },
                     modifier = Modifier.menuAnchor().fillMaxWidth()
                 )
-                ExposedDropdownMenu(expanded = regionExpanded, onDismissRequest = { regionExpanded = false }) {
+                ExposedDropdownMenu(
+                    expanded = regionExpanded,
+                    onDismissRequest = { regionExpanded = false }
+                ) {
                     contactViewModel.regions.forEach { region ->
                         DropdownMenuItem(
                             text = { Text(region.regionName) },
@@ -92,16 +114,22 @@ fun CreateContactCard(
                 }
             }
 
-            ExposedDropdownMenuBox(expanded = communeExpanded, onExpandedChange = { communeExpanded = !communeExpanded }) {
+            ExposedDropdownMenuBox(
+                expanded = communeExpanded,
+                onExpandedChange = { communeExpanded = !communeExpanded }
+            ) {
                 OutlinedTextField(
                     readOnly = true,
                     value = contactViewModel.selectedCommune?.nameCommunity ?: "",
                     onValueChange = {},
                     label = { Text("Comuna") },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = communeExpanded) },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(communeExpanded) },
                     modifier = Modifier.menuAnchor().fillMaxWidth()
                 )
-                ExposedDropdownMenu(expanded = communeExpanded, onDismissRequest = { communeExpanded = false }) {
+                ExposedDropdownMenu(
+                    expanded = communeExpanded,
+                    onDismissRequest = { communeExpanded = false }
+                ) {
                     contactViewModel.communes.forEach { commune ->
                         DropdownMenuItem(
                             text = { Text(commune.nameCommunity) },
@@ -114,12 +142,18 @@ fun CreateContactCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(Modifier.height(12.dp))
 
             Button(
+                modifier = Modifier.fillMaxWidth(),
                 onClick = {
-                    val communeId = contactViewModel.selectedCommune?.id ?: return@Button
-                    val newContact = ContactCreateWithAddress(
+                    val communeId = contactViewModel.selectedCommune?.id
+
+                    if (communeId == null) {
+                        return@Button
+                    }
+
+                    val dto = ContactCreateWithAddress(
                         name = name,
                         lastName = lastName,
                         phone = phone,
@@ -127,13 +161,16 @@ fun CreateContactCard(
                         number = number,
                         communeId = communeId
                     )
-                    userViewModel.createContact(newContact)
+
+                    userViewModel.createContact(dto)
                     onSuccess()
-                },
-                modifier = Modifier.fillMaxWidth()
+                }
             ) {
-                Text("Guardar Contacto")
+                Text("Guardar contacto")
             }
         }
     }
+
+    SnackbarHost(hostState = snackbarHostState)
 }
+

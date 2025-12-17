@@ -6,6 +6,7 @@ import com.example.movilecibershield.data.model.auth.LoginRequest
 import com.example.movilecibershield.data.model.user.UserRegister
 import com.example.movilecibershield.data.model.user.UserResponse
 import com.example.movilecibershield.data.remote.api.AuthApiService
+import com.example.movilecibershield.data.utils.extractErrorMessage
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -22,7 +23,7 @@ class AuthRepository(
             TokenCache.token = response.token
             RepoResult(data = response)
         } catch (e: HttpException) {
-            RepoResult(error = e.message())
+            RepoResult(error = extractErrorMessage(e))
         } catch (e: IOException) {
             RepoResult(error = "Sin conexión a internet")
         } catch (e: Exception) {
@@ -44,7 +45,7 @@ class AuthRepository(
             )
             RepoResult(data = response)
         } catch (e: HttpException) {
-            RepoResult(error = e.message())
+            RepoResult(error = extractErrorMessage(e))
         } catch (e: IOException) {
             RepoResult(error = "Sin conexión a internet")
         } catch (e: Exception) {

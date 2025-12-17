@@ -8,26 +8,45 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
+import androidx.navigation.NavController
+import com.example.movilecibershield.data.utils.UiEvent
 import com.example.movilecibershield.navigation.Routes
 import com.example.movilecibershield.viewmodel.AuthViewModel
+
+
 
 @Composable
 fun AuthScreen(
     viewModel: AuthViewModel,
-    navController: NavHostController
+    navController: NavController
 ) {
-    val authResponse = viewModel.authResponse
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
+    LaunchedEffect(Unit) {
+        viewModel.uiEvent.collect { event ->
+            when (event) {
+                is UiEvent.ShowSnackbar -> {
+                    snackbarHostState.showSnackbar(event.message)
+                }
+            }
+        }
+    }
+
+    val authResponse = viewModel.authResponse
     if (authResponse != null) {
         LaunchedEffect(authResponse) {
             navController.navigate(Routes.HOME) {
@@ -46,6 +65,7 @@ fun AuthScreen(
     )
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         containerColor = Color.Transparent
     ) { padding ->
 
@@ -79,7 +99,7 @@ fun AuthScreen(
                         AuthMode.LOGIN -> {
                             LoginForm(
                                 isLoading = viewModel.isLoading,
-                                errorMessage = viewModel.errorMessage,
+                                errorMessage = null,
                                 onLogin = viewModel::login,
                                 onGoToRegister = viewModel::switchToRegister,
                                 onCancel = {
@@ -93,7 +113,7 @@ fun AuthScreen(
                         AuthMode.REGISTER -> {
                             RegisterForm(
                                 isLoading = viewModel.isLoading,
-                                errorMessage = viewModel.errorMessage,
+                                errorMessage = null,
                                 onRegister = viewModel::register,
                                 onGoToLogin = viewModel::switchToLogin
                             )
@@ -104,3 +124,4 @@ fun AuthScreen(
         }
     }
 }
+
